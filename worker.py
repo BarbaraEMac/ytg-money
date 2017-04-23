@@ -44,6 +44,68 @@ def say(message_text, live_chat_id, youtube):
 class CredentialsModel(ndb.Model):
     credentials = CredentialsNDBProperty()
 
+class Sponsorbot(webapp2.RequestHandler):
+    """Worker class for the bot."""
+
+    def post(self):
+        """Entry point for the worker."""
+
+        # channel_id refers to the channel that the bot is using
+        # video_id refers to the live stream we want to chat in
+
+        channel_id = self.request.get("channel_id")
+        live_chat_id = self.request.get("live_chat_id")
+
+        storage = StorageByKeyName(CredentialsModel, channel_id, 'credentials')
+        credential = storage.get()
+        http = credential.authorize(httplib2.Http())
+
+        youtube = build('youtube', 'v3', http=http)
+
+        in_chat = memcache.get("{}:in_chat".format(live_chat_id))
+        if in_chat is None:
+            say("Hello, I've joined the chat!", live_chat_id, youtube)
+
+        next_page = memcache.get("{}:nextpage".format(live_chat_id))
+
+        # This is our loop control. If we want the bot to gracefully exit,
+        # we can just set this to false.
+        remain_in_channel = True
+
+        try:
+            while remain_in_channel:
+                memcache.set("{}:in_chat".format(live_chat_id), True,
+                             MEMCACHE_CHAT_PING_EXPIRY_TIME)
+
+                sponsors = youtube.sponsors().list(part="id,snippet").execute()
+
+                if sponsors is None:
+                    say ("No sponsors", live_chat_id, youtube)
+		    break
+
+                for sponsor in sponsors['items']:
+                    sponsor_id = sponsor['id']
+                    sponsor_snippet = sponsor['snippet']
+
+                    author_channel_name = message['authorDetails']['displayName']
+                    author_is_moderator = message['authorDetails']['isChatModerator']
+                    author_is_owner = message['authorDetails']['isChatOwner']
+			
+		    say(str(sponsor_snippet), live_chat_id, youtube)
+
+	        remain_in_channel = False
+
+                time.sleep(messages['pollingIntervalMillis']/1000)
+        except DeadlineExceededError:
+            # App Engine is terminating our task, so we need to re-queue it.
+            # Tasks in Task Queues have deadlines. To learn more:
+            # https://cloud.google.com/appengine/docs/standard/python/taskqueue/push/creating-handlers
+            if remain_in_channel:
+                taskqueue.add(url='/sponsorbot', target='worker', params=
+                              {'channel_id':channel_id,
+                               'live_chat_id':live_chat_id})
+            return
+
 class Chatbot(webapp2.RequestHandler):
     """Worker class for the bot."""
 
@@ -147,4 +209,4 @@ class Chatbot(webapp2.RequestHandler):
         memcache.delete("{}:in_chat".format(live_chat_id))
 
 
-app = webapp2.WSGIApplication([('/spawnbot', Chatbot)], debug=True)
+app = webapp2.WSGIApplication([('/spawnbot', Chatbot), ('/sponsorbot', Sponsorbot)], debug=True)
