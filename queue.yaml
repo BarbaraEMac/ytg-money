@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""App Engine-specific configuration to bring in third-party
-   libraries."""
-
-# appengine_config.py
-from google.appengine.ext import vendor
-
-# Add any libraries install in the "lib" folder.
-vendor.add('lib')
+queue:
+- name: default
+  rate: 1/s
+  retry_parameters:
+    task_age_limit: 1h
+    task_retry_limit: 10
+  max_concurrent_requests: 1000
