@@ -1,0 +1,2 @@
+BARBARA = "UCmydrQwDJ12_8vAwRv-aqKw"
+BARBBOT = "UCxhux0GVVyP1iX_nt7cU1bQ"
