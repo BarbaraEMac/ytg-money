@@ -32,10 +32,10 @@ class LiveHandler(webapp2.RequestHandler):
 
         self.response.out.write( json.dumps({'alerts': data}) )
 
-class AlertsHandler(webapp2.RequestHandler):
+class PatchHandler(webapp2.RequestHandler):
 
     def get(self):
-        self.response.out.write( template.render("main/templates/alert_popupv2.html",{}) )
+        self.response.out.write( template.render("main/templates/patch.html",{}) )
 
 class AlertsApiHandler(webapp2.RequestHandler):
 
@@ -57,7 +57,7 @@ class AlertsApiHandler(webapp2.RequestHandler):
         self.response.out.write( json.dumps({'alerts': alert_response}) )
 
 app = webapp2.WSGIApplication([("/", LiveHandler),
-                               ("/alerts", AlertsHandler),
+                               ("/patch", PatchHandler),
                                ("/alerts_api", AlertsApiHandler)
                               ],
                               debug=True)
