@@ -90,7 +90,7 @@ class Sponsorbot(webapp2.RequestHandler):
                     author_channel_name = message['authorDetails']['displayName']
                     author_is_moderator = message['authorDetails']['isChatModerator']
                     author_is_owner = message['authorDetails']['isChatOwner']
-			
+
 		    say(str(sponsor_snippet), live_chat_id, youtube)
 
 	        remain_in_channel = False
@@ -207,6 +207,5 @@ class Chatbot(webapp2.RequestHandler):
 
         memcache.delete("{}:nextpage".format(live_chat_id))
         memcache.delete("{}:in_chat".format(live_chat_id))
-
 
 app = webapp2.WSGIApplication([('/spawnbot', Chatbot), ('/sponsorbot', Sponsorbot)], debug=True)
