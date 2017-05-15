@@ -1,0 +1,170 @@
+#!/usr/bin/env python
+
+import md5
+import json
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
+from django.shortcuts import render
+from main.models import Alert, Updater
+from main.support import formatter, update_last_activity
+import Constants
+
+import httplib2
+import os
+import logging
+import webapp2
+
+from google.appengine.api import memcache, taskqueue
+from google.appengine.ext import ndb
+
+from apiclient.discovery import build
+from oauth2client.contrib.appengine import (CredentialsNDBProperty,
+                                            OAuth2DecoratorFromClientSecrets,
+                                            StorageByKeyName)
+
+AUTH_ARGS = {'access_type':'offline'}
+
+OAUTH_DECORATOR = OAuth2DecoratorFromClientSecrets(
+    os.path.join(os.path.dirname(__file__), 'client_secrets.json'),
+    'https://www.googleapis.com/auth/youtube',
+    **AUTH_ARGS)
+
+class CredentialsModel(ndb.Model):
+    """Test"""
+    credentials = CredentialsNDBProperty()
+
+class ChannelLoginHandler(webapp2.RequestHandler):
+    """We only want to use this website with 2 accounts"""
+
+    @OAUTH_DECORATOR.oauth_aware
+    def get(self):
+        # This is really secure.
+        if not self.request.get('secret'):
+            self.response.write("""Please supply the password""")
+            return
+
+        # If someone is logged in:
+        if OAUTH_DECORATOR.has_credentials():
+
+            http = OAUTH_DECORATOR.http()
+            youtube = build('youtube', 'v3', http=http)
+            channel = youtube.channels().list(mine=True, part='id').execute()
+            channel_id = channel['items'][0]['id']
+
+            storage = StorageByKeyName(CredentialsModel, channel_id, 'credentials')
+            storage.get()
+
+            # Refresh Barbara's channel oauth tokens
+            if self.request.get('secret') == "channel" and channel_id != Constants.BARBARA:
+
+                storage.locked_get().revoke(httplib2.Http())
+                url = OAUTH_DECORATOR.authorize_url()
+                self.redirect( url )
+
+            # Refresh BarbBot's oauth tokens
+            elif self.request.get('secret') == "bot" and channel_id != Constants.BARBBOT:
+                storage.locked_get().revoke(httplib2.Http())
+                url = OAUTH_DECORATOR.authorize_url()
+                self.redirect( url )
+
+            self.response.write("""Using """+channel_id)
+
+        else:
+            logging.info("NO ONE")
+            url = OAUTH_DECORATOR.authorize_url()
+            self.redirect( url )
+
+class LiveHandler(webapp2.RequestHandler):
+    def get(self):
+        self.response.write("""TST""")
+
+class MainHandler(webapp2.RequestHandler):
+    """Entry point for our web app."""
+
+    def get(self):
+        """Handler for GET requests to the app."""
+        http = OAUTH_DECORATOR.http()
+        if not self.request.get('videoId'):
+            self.response.write("""Please supply the video ID of a YouTube live stream as a query
+                                parameter, i.e. ?videoId=xxx.""")
+            return
+
+        youtube = build('youtube', 'v3', http=http)
+        channel = youtube.channels().list(mine=True, part='id').execute()
+        channel_id = channel['items'][0]['id']
+
+        storage = StorageByKeyName(CredentialsModel, channel_id, 'credentials')
+        storage.put(OAUTH_DECORATOR.credentials)
+
+        video_id = self.request.get('videoId')
+        videos = youtube.videos().list(id=video_id, part="liveStreamingDetails").execute()
+
+	logging.info(videos['items'])
+	if len(videos['items']) == 0:
+            self.response.write("""Channel is not live""")
+            return
+
+	video = videos['items'][0]
+        live_chat_id = video['liveStreamingDetails']['activeLiveChatId']
+
+        # See if the bot's already in the channel.
+        in_chat = memcache.get("{}:in_chat".format(live_chat_id))
+        if in_chat:
+            self.response.write("""The bot's already in that chat! Try saying .hi to
+             it, or asking it to .leave! If the bot isn't in chat, wait 4 minutes
+            then try adding it again""")
+        else:
+            taskqueue.add(url='/spawnbot', target='worker', params=
+                          {'channel_id':channel_id,
+                           'live_chat_id':live_chat_id})
+
+    	taskqueue.add(url='/sponsorbot', target='worker', params=
+		  {'channel_id':channel_id,
+		   'live_chat_id':live_chat_id})
+
+	self.response.write("Created the bot task for live chat "+live_chat_id
+                                +" on channel "+channel_id+
+                                "! The bot should join the channel soon and say hello :)")
+
+
+class PopupHandler(webapp2.RequestHandler):
+
+    def get(request):
+        return render(request, "alert_popupv2.html")
+
+class AlertApiHandler(webapp2.RequesPtHandler):
+
+    def get(request):
+        key = request.GET['key']
+        k = AccessKey.objects.get(key=key)
+        update_last_activity(k.user)
+        alerts = Alert.objects.filter(user=k.user).order_by("-id")
+        alert_response = []
+        for alert in alerts[0:10]:
+            alert_response.append({
+                'id': alert.id,
+                'text': alert.text,
+                'image': alert.style.image,
+                'sound': alert.style.sound,
+                'font': alert.style.font,
+                'google_font': google_font,
+                'font_size': alert.style.font_size,
+                'font_color': alert.style.font_color,
+                'type': alert.config.type,
+                'layout': alert.config.layout,
+                'font_effect': alert.config.font_effect,
+                'animation_out': alert.config.animation_out,
+                'animation_in': alert.config.animation_in,
+            })
+        output = json.dumps({'alerts': alert_response})
+        response = HttpResponse(output)
+        response['Access-Control-Allow-Origin'] = "*"
+        response['Access-Control-Allow-Headers'] = 'accept, x-requested-with'
+        return response
+
+app = webapp2.WSGIApplication([("/", MainHandler),
+			       ("/channelLogin", ChannelLoginHandler),
+			       ("/live", LiveHandler),
+			       ("/popup", PopupHandler),
+			       ("/alerts_api", AlertsApiHandler),
+                               (OAUTH_DECORATOR.callback_path, OAUTH_DECORATOR.callback_handler())],
+                              debug=True)

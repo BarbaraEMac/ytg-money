@@ -1,0 +1,25 @@
+from django.http import HttpResponseRedirect
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from django.conf import settings
+from django.utils import timezone
+
+def formatter(format, data):
+    for k, v in data.items():
+        if type(v) not in [str, unicode]:
+            v = str(v)
+        format = format.replace("[[%s]]" % k, v)
+    return format
+
+def update_last_activity(user):
+    from main.models import LastActivity
+    now = timezone.now()
+    lu = LastActivity.objects.filter(user=user)
+    if lu.count():
+        lu = lu[0]
+        lu.timestamp = now
+    else:
+        lu = LastActivity(user=user, timestamp=now)
+    lu.save()
+    return True
