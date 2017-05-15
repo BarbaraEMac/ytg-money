@@ -1,10 +1,5 @@
-import cgi
-import urllib
-
 from google.appengine.ext import ndb
-from google.appengine.api import users
-
-import webapp2
+from oauth2client.contrib.appengine import CredentialsNDBProperty
 
 class Alert(ndb.Model):
     time = ndb.DateTimeProperty(auto_now_add=True)
@@ -35,3 +30,6 @@ class UpdaterEvent(ndb.Model):
     external_id = ndb.StringProperty(default="", indexed=True)
     timestamp = ndb.DateTimeProperty(auto_now_add=True)
     base_updater = ndb.KeyProperty(kind=Updater)
+
+class CredentialsModel(ndb.Model):
+    credentials = CredentialsNDBProperty()
