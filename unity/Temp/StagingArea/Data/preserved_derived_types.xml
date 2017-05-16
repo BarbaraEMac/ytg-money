@@ -1,6 +1,0 @@
-<linker>
-<assembly fullname="Assembly-UnityScript">
-<type fullname="InputManager" preserve="all"/>
-<type fullname="PumpkinManager" preserve="all"/>
-</assembly>
-</linker>
