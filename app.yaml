@@ -17,10 +17,10 @@ api_version: 1
 threadsafe: no
 
 handlers:
-- url: /pumpkin_patch/TemplateData/*
-  static_dir: pumpkin_patch/webGL_build/TemplateData
-- url: /pumpkin_patch/Build/*
-  static_dir: pumpkin_patch/webGL_build/Build
+- url: /TemplateData/*
+  static_dir: main/templates/webGL/TemplateData
+- url: /Build/*
+  static_dir: main/templates/webGL/Build
 - url: /pumpkin_patch.*
   script: pumpkin_patch.pumpkin_patch.app
 - url: .*

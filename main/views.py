@@ -60,7 +60,7 @@ class SponsorsHandler(webapp2.RequestHandler):
 class PatchHandler(webapp2.RequestHandler):
 
     def get(self):
-        self.response.out.write( template.render("main/templates/patch.html",{}) )
+        self.response.out.write( template.render("main/templates/webGL/index.html",{}) )
 
 class AlertsApiHandler(webapp2.RequestHandler):
 
