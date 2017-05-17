@@ -4,5 +4,8 @@
 *~
 \#*#
 .DS_Store
+
+# Unity related files
 /unity/Library
 /unity/Temp
+*.sln

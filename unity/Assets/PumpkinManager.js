@@ -2,11 +2,13 @@
 
 var pumpkinOrange : Color = Color(1.0, 0.4, 0.0);
 var topLayerDepth : float = 0.0f;
+var nameText : UnityEngine.UI.Text;
+var backgroundRenderer : SpriteRenderer;
 
 function Start () {
-    ChangeColor(pumpkinOrange);
-    // topLayerDepth -= 1;
-    // gameObject.transform.position.z = topLayerDepth;
+    if (backgroundRenderer.color == Color.white) {
+	SetColor(pumpkinOrange);
+    }
 }
 
 function Update () {
@@ -16,11 +18,10 @@ function Update () {
 function OnMouseDown() {
     Debug.Log("Pumpkin Clicked!");
     StartCoroutine(AnimatedScale(2.0f, 0.5f));
-    ChangeColor(Color.red);
+    SetColor(Color.red);
 }
 
 function AnimatedScale(factor : float, duration : float) {
-    Debug.Log("Animation started");
     var framesPerSecond : float = 60.0f;
     var incriment : float = (factor - 1) / (framesPerSecond * duration);
     var initialScale : Vector3 = gameObject.transform.localScale;
@@ -31,10 +32,10 @@ function AnimatedScale(factor : float, duration : float) {
     }
 }
 
-function ChangeColor(newColor : Color){
-    Debug.Log("Changing Color!");
-    var background : GameObject = gameObject.transform.Find("background").gameObject;
-    var backgroundRenderer : SpriteRenderer;
-    backgroundRenderer = background.GetComponent(SpriteRenderer) as SpriteRenderer;
+function SetColor(newColor : Color){
     backgroundRenderer.color = newColor;
+}
+
+function SetName(newName : String){
+    nameText.text = newName;
 }
