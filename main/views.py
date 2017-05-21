@@ -10,18 +10,13 @@ import sys
 import webapp2
 
 from channels.models import *
-
+from urlparse import urlparse
 from google.appengine.api import users
 from google.appengine.ext.webapp import template
 from main.models import *
 
 from apiclient.errors import HttpError
 from oauth2client.client import flow_from_clientsecrets
-
-class IndexHandler(webapp2.RequestHandler):
-    def get(self):
-        self.response.out.write("SUPER. You probably want /login")
-        return
 
 class LiveHandler(webapp2.RequestHandler):
     def get(self):
@@ -109,17 +104,15 @@ class Oauth2CallbackHandler(webapp2.RequestHandler):
             self.redirect( users.create_login_url('/oauth2callback') )
             return
 
-
-        bar = ""
         if os.environ.get('SERVER_SOFTWARE','').startswith('Development'):
-            bar = "http://8080-dot-2163697-dot-devshell.appspot.com/oauth2callback"
+            bar = "https://8080-dot-2163697-dot-devshell.appspot.com/oauth2callback"
         else:
             bar = "https://ytg-money.appspot.com/oauth2callback"
 
         flow = flow_from_clientsecrets(constants.CLIENT_SECRETS,
                                        scope=constants.YOUTUBE_SCOPE,
                                        message=constants.MISSING_CLIENT_SECRETS_MESSAGE,
-                                       redirect_uri=bar)
+                                       redirect_uri=bar )
 
         if not self.request.get('code'):
             flow.params['access_type'] = 'offline'   # offline access
@@ -139,8 +132,7 @@ class Oauth2CallbackHandler(webapp2.RequestHandler):
             self.redirect("/login")
             return
 
-app = webapp2.WSGIApplication([("/", IndexHandler),
-                               ("/stream", LiveHandler),
+app = webapp2.WSGIApplication([("/", LiveHandler),
                                ("/sponsors", SponsorsHandler),
                                ("/patch", PatchHandler),
                                ("/alerts_api", AlertsApiHandler),
