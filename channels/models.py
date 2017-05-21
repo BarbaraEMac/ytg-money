@@ -72,18 +72,21 @@ class Channel(ndb.Model):
         list_broadcasts_request = youtube.liveBroadcasts().list(
             broadcastStatus = "active",
             part="id,snippet",
-            maxResults=5
+            maxResults=50
             )
 
-        top_concurrents = 0
+        top_concurrents = -1
         top_video_id = ""
         # Iterate through them, looking for the one with the most concurrents
         while list_broadcasts_request:
             list_broadcasts_response = list_broadcasts_request.execute()
             broadcasts = list_broadcasts_response.get("items",[])
 
-            # If noly 1 broadcast, don't bother doing any more work.
-            if len( broadcasts ) == 1:
+            if len( broadcasts ) == 0:
+                return ""
+
+            # If only 1 broadcast, don't bother doing any more work.
+            elif len( broadcasts ) == 1:
                 return str(broadcasts[0]["id"])
 
             for broadcast in broadcasts:
@@ -91,15 +94,17 @@ class Channel(ndb.Model):
                 # Fetch concurrents from the videos API
                 videos = youtube.videos().list(part="liveStreamingDetails", id = broadcast["id"]).execute()
 
+                # NOTE: There's a bug if there are N >1 broadcasts and all have 0 viewers
                 for video in videos.get("items", []):
                     try:
                         concurrents = video["liveStreamingDetails"]["concurrentViewers"]
                         logging.info("Concurernts %s" % concurrents)
 
-                        if concurrents > top_concurrents:
+                        if concurrents >= top_concurrents:
                             top_concurrents = concurrents
                             top_video_id = broadcast["id"]
                     except:
+                        logging.warning("Exception during concurrents")
                         continue
 
             list_broadcasts_request = youtube.liveBroadcasts().list_next(
