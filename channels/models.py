@@ -80,8 +80,13 @@ class Channel(ndb.Model):
         # Iterate through them, looking for the one with the most concurrents
         while list_broadcasts_request:
             list_broadcasts_response = list_broadcasts_request.execute()
+            broadcasts = list_broadcasts_response.get("items",[])
 
-            for broadcast in list_broadcasts_response.get("items", []):
+            # If noly 1 broadcast, don't bother doing any more work.
+            if len( broadcasts ) == 1:
+                return str(broadcasts[0]["id"])
+
+            for broadcast in broadcasts:
 
                 # Fetch concurrents from the videos API
                 videos = youtube.videos().list(part="liveStreamingDetails", id = broadcast["id"]).execute()
