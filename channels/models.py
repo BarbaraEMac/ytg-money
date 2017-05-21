@@ -62,3 +62,42 @@ class Channel(ndb.Model):
             channel.put()
 
         return channel
+
+    def get_top_live_video_id(self):
+        youtube = build(constants.YOUTUBE_API_SERVICE_NAME,
+                        constants.YOUTUBE_API_VERSION,
+                        http=self.credentials.authorize(httplib2.Http()))
+
+        # Fetch all streams that are currently live
+        list_broadcasts_request = youtube.liveBroadcasts().list(
+            broadcastStatus = "active",
+            part="id,snippet",
+            maxResults=5
+            )
+
+        top_concurrents = 0
+        top_video_id = ""
+        # Iterate through them, looking for the one with the most concurrents
+        while list_broadcasts_request:
+            list_broadcasts_response = list_broadcasts_request.execute()
+
+            for broadcast in list_broadcasts_response.get("items", []):
+
+                # Fetch concurrents from the videos API
+                videos = youtube.videos().list(part="liveStreamingDetails", id = broadcast["id"]).execute()
+
+                for video in videos.get("items", []):
+                    try:
+                        concurrents = video["liveStreamingDetails"]["concurrentViewers"]
+                        logging.info("Concurernts %s" % concurrents)
+
+                        if concurrents > top_concurrents:
+                            top_concurrents = concurrents
+                            top_video_id = broadcast["id"]
+                    except:
+                        continue
+
+            list_broadcasts_request = youtube.liveBroadcasts().list_next(
+                list_broadcasts_request, list_broadcasts_response)
+
+        return str(top_video_id)

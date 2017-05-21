@@ -20,22 +20,14 @@ from oauth2client.client import flow_from_clientsecrets
 
 class LiveHandler(webapp2.RequestHandler):
     def get(self):
+        channel = Channel.query(Channel.external_id == constants.BARBARA_CHANNEL_ID).get()
 
-        #storage = StorageByKeyName(CredentialsModel, channel_id, 'credentials')
-        #storage.put(OAUTH_DECORATOR.credentials)
+        top_live_video = channel.get_top_live_video_id()
 
-        #video_id = self.request.get('videoId')
-        #videos = youtube.videos().list(id=video_id, part="liveStreamingDetails").execute()
-
-        #logging.info(videos['items'])
-        #if len(videos['items']) == 0:
-        #    self.response.write("""Channel is not live""")
-        #    return
-
-        #video = videos['items'][0]
-        #live_chat_id = video['liveStreamingDetails']['activeLiveChatId']
-
-        self.response.out.write("""Not live""")
+        if top_live_video != "":
+            self.redirect( "https://gaming.youtube.com/watch?v=%s" % top_live_video)
+        else:
+            self.redirect( "https://gaming.youtube.com/BarbaraEMac?action=subscribe")
 
 class SponsorsHandler(webapp2.RequestHandler):
     def get(self):
@@ -86,6 +78,7 @@ class LoginHandler(webapp2.RequestHandler):
         user = users.get_current_user()
         login_url = users.create_login_url( "/oauth2callback" )
 
+        # test@example.com is the default logged in user for devappserver
         if user and user.email() != "test@example.com":
             channel = Channel.query(Channel.user_id == user.user_id())
 
@@ -130,7 +123,7 @@ class Oauth2CallbackHandler(webapp2.RequestHandler):
             self.redirect("/login")
             return
 
-app = webapp2.WSGIApplication([("/", LiveHandler),
+app = webapp2.WSGIApplication([("/stream", LiveHandler),
                                ("/sponsors", SponsorsHandler),
                                ("/patch", PatchHandler),
                                ("/alerts_api", AlertsApiHandler),
