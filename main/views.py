@@ -10,7 +10,6 @@ import sys
 import webapp2
 
 from channels.models import *
-from urlparse import urlparse
 from google.appengine.api import users
 from google.appengine.ext.webapp import template
 from main.models import *
