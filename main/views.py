@@ -19,6 +19,11 @@ from oauth2client.client import flow_from_clientsecrets
 
 class LiveHandler(webapp2.RequestHandler):
     def get(self):
+
+        # If in the dev server, don't redirect
+        if os.environ.get('SERVER_SOFTWARE','').startswith('Development'):
+            self.response.out.write("Heloo and welcome to our dev server")
+
         channel = Channel.query(Channel.external_id == constants.BARBARA_CHANNEL_ID).get()
 
         if channel is None:
