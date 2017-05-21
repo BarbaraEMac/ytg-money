@@ -109,10 +109,17 @@ class Oauth2CallbackHandler(webapp2.RequestHandler):
             self.redirect( users.create_login_url('/oauth2callback') )
             return
 
+
+        bar = ""
+        if os.environ.get('SERVER_SOFTWARE','').startswith('Development'):
+            bar = "http://8080-dot-2163697-dot-devshell.appspot.com/oauth2callback"
+        else:
+            bar = "https://ytg-money.appspot.com/oauth2callback"
+
         flow = flow_from_clientsecrets(constants.CLIENT_SECRETS,
                                        scope=constants.YOUTUBE_SCOPE,
                                        message=constants.MISSING_CLIENT_SECRETS_MESSAGE,
-                                       redirect_uri="http://8080-dot-2163697-dot-devshell.appspot.com/oauth2callback")
+                                       redirect_uri=bar)
 
         if not self.request.get('code'):
             flow.params['access_type'] = 'offline'   # offline access
