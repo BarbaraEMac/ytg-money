@@ -18,6 +18,11 @@ from main.models import *
 from apiclient.errors import HttpError
 from oauth2client.client import flow_from_clientsecrets
 
+class IndexHandler(webapp2.RequestHandler):
+    def get(self):
+        self.response.out.write("SUPER. You probably want /login")
+        return
+
 class LiveHandler(webapp2.RequestHandler):
     def get(self):
         channel = Channel.query(Channel.external_id == constants.BARBARA_CHANNEL_ID).get()
@@ -127,7 +132,8 @@ class Oauth2CallbackHandler(webapp2.RequestHandler):
             self.redirect("/login")
             return
 
-app = webapp2.WSGIApplication([("/stream", LiveHandler),
+app = webapp2.WSGIApplication([("/", IndexHandler),
+                               ("/stream", LiveHandler),
                                ("/sponsors", SponsorsHandler),
                                ("/patch", PatchHandler),
                                ("/alerts_api", AlertsApiHandler),
