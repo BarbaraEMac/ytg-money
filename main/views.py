@@ -22,7 +22,8 @@ class LiveHandler(webapp2.RequestHandler):
 
         # If in the dev server, don't redirect
         if os.environ.get('SERVER_SOFTWARE','').startswith('Development'):
-            self.response.out.write("Heloo and welcome to our dev server")
+            self.response.out.write("Hello and welcome to our dev server")
+            return
 
         channel = Channel.query(Channel.external_id == constants.BARBARA_CHANNEL_ID).get()
 
