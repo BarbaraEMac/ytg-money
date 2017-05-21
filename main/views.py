@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import Constants
+import constants
 import httplib2
 import json
 import logging
@@ -14,21 +14,9 @@ from channels.models import *
 from google.appengine.api import users
 from google.appengine.ext.webapp import template
 from main.models import *
-from oauth2client.contrib.appengine import (CredentialsNDBProperty,
-                                            OAuth2DecoratorFromClientSecrets,
-                                            StorageByKeyName)
 
 from apiclient.errors import HttpError
 from oauth2client.client import flow_from_clientsecrets
-from oauth2client.file import Storage
-from oauth2client.tools import argparser, run_flow
-
-foo = os.path.dirname(__file__) + "/client_secrets.json"
-# This OAuth 2.0 access scope allows for full read/write access to the
-# authenticated user's account.
-YOUTUBE_SCOPE = "https://www.googleapis.com/auth/youtube"
-YOUTUBE_API_SERVICE_NAME = "youtube"
-YOUTUBE_API_VERSION = "v3"
 
 class LiveHandler(webapp2.RequestHandler):
     def get(self):
@@ -119,7 +107,10 @@ class Oauth2CallbackHandler(webapp2.RequestHandler):
             self.redirect( users.create_login_url('/oauth2callback') )
             return
 
-        flow = flow_from_clientsecrets(foo, scope=YOUTUBE_SCOPE, message=Constants.MISSING_CLIENT_SECRETS_MESSAGE, redirect_uri="http://8080-dot-2163697-dot-devshell.appspot.com/oauth2callback")
+        flow = flow_from_clientsecrets(constants.CLIENT_SECRETS,
+                                       scope=constants.YOUTUBE_SCOPE,
+                                       message=constants.MISSING_CLIENT_SECRETS_MESSAGE,
+                                       redirect_uri="http://8080-dot-2163697-dot-devshell.appspot.com/oauth2callback")
 
         if not self.request.get('code'):
             flow.params['access_type'] = 'offline'   # offline access

@@ -1,3 +1,4 @@
+import constants
 import httplib2
 import json
 import logging
@@ -7,13 +8,6 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 from oauth2client.contrib.appengine import CredentialsNDBProperty
 from apiclient.discovery import build
-
-foo = os.path.dirname(__file__) + "/client_secrets.json"
-# This OAuth 2.0 access scope allows for full read/write access to the
-# authenticated user's account.
-YOUTUBE_SCOPE = "https://www.googleapis.com/auth/youtube"
-YOUTUBE_API_SERVICE_NAME = "youtube"
-YOUTUBE_API_VERSION = "v3"
 
 class Channel(ndb.Model):
     # Added this object was created
@@ -48,8 +42,9 @@ class Channel(ndb.Model):
     @staticmethod
     def get_or_create( credentials, user ):
 
-        youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-                    http=credentials.authorize(httplib2.Http()))
+        youtube = build(constants.YOUTUBE_API_SERVICE_NAME,
+                        constants.YOUTUBE_API_VERSION,
+                        http=credentials.authorize(httplib2.Http()))
 
         channel_details = youtube.channels().list(mine=True, part='id, snippet').execute()
         external_id = channel_details['items'][0]['id']
