@@ -23,32 +23,17 @@ class LiveHandler(webapp2.RequestHandler):
         channel = Channel.query(Channel.external_id == constants.BARBARA_CHANNEL_ID).get()
 
         if channel is None:
+            logging.info("No channel found. Redirecting to channel page")
             self.redirect( "https://gaming.youtube.com/BarbaraEMac?action=subscribe")
             return
 
+        logging.info("Fetching top live videos")
         top_live_video = channel.get_top_live_video_id()
 
         if top_live_video != "":
             self.redirect( "https://gaming.youtube.com/watch?v=%s" % top_live_video)
         else:
             self.redirect( "https://gaming.youtube.com/BarbaraEMac?action=subscribe")
-
-class SponsorsHandler(webapp2.RequestHandler):
-    def get(self):
-
-        storage = ndb.Key(CredentialsModel, Constants.BARBARA)
-        credential = storage.get()
-        if credential is None:
-            raise Exception("bad creds")
-
-        http = httplib2.Http()
-        http = credential.credentials.authorize(http)
-        resp, data = http.request("%ssponsors?part=snippet&maxResults=5&filter=all" % BASE_URL)
-        data = json.loads(data)
-        if 'error' in data:
-            raise Exception("Error fetching sponsors: %s" % json.dumps(data['error']))
-
-        self.response.out.write( json.dumps({'alerts': data}) )
 
 class PatchHandler(webapp2.RequestHandler):
 
@@ -133,7 +118,6 @@ class Oauth2CallbackHandler(webapp2.RequestHandler):
             return
 
 app = webapp2.WSGIApplication([("/", LiveHandler),
-                               ("/sponsors", SponsorsHandler),
                                ("/patch", PatchHandler),
                                ("/alerts_api", AlertsApiHandler),
                                ("/login", LoginHandler),
