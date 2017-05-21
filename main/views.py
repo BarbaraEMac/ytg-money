@@ -22,6 +22,10 @@ class LiveHandler(webapp2.RequestHandler):
     def get(self):
         channel = Channel.query(Channel.external_id == constants.BARBARA_CHANNEL_ID).get()
 
+        if channel is None:
+            self.redirect( "https://gaming.youtube.com/BarbaraEMac?action=subscribe")
+            return
+
         top_live_video = channel.get_top_live_video_id()
 
         if top_live_video != "":
