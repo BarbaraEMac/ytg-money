@@ -34,3 +34,5 @@ libraries:
 
 skip_files:
 - ^(.*/)?unity.*
+- ^(.*/)?.git.*
+
