@@ -1,25 +1,34 @@
 #!/usr/bin/env python
 
 import Constants
-import json
 import httplib2
-import os
+import json
 import logging
+import os
+import re
+import sys
 import webapp2
 
+from channels.models import *
+
+from google.appengine.api import users
 from google.appengine.ext.webapp import template
 from main.models import *
-from apiclient.discovery import build
 from oauth2client.contrib.appengine import (CredentialsNDBProperty,
                                             OAuth2DecoratorFromClientSecrets,
                                             StorageByKeyName)
 
-BASE_URL = "https://www.googleapis.com/youtube/v3/"
-AUTH_ARGS = {'access_type':'offline'}
-OAUTH_DECORATOR = OAuth2DecoratorFromClientSecrets(
-            os.path.join(os.path.dirname(__file__), 'client_secrets.json'),
-                'https://www.googleapis.com/auth/youtube',
-                    **AUTH_ARGS)
+from apiclient.errors import HttpError
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.file import Storage
+from oauth2client.tools import argparser, run_flow
+
+foo = os.path.dirname(__file__) + "/client_secrets.json"
+# This OAuth 2.0 access scope allows for full read/write access to the
+# authenticated user's account.
+YOUTUBE_SCOPE = "https://www.googleapis.com/auth/youtube"
+YOUTUBE_API_SERVICE_NAME = "youtube"
+YOUTUBE_API_VERSION = "v3"
 
 class LiveHandler(webapp2.RequestHandler):
     def get(self):
@@ -81,53 +90,60 @@ class AlertsApiHandler(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write( json.dumps({'alerts': alert_response}) )
 
-
-
 class LoginHandler(webapp2.RequestHandler):
     """We only want to use this website with 2 accounts"""
 
-    @OAUTH_DECORATOR.oauth_aware
     def get(self):
-        if not self.request.get("secret"):
-            self.response.write("you forgot the password")
-            return
 
-        # If someone is logged in:
-        if OAUTH_DECORATOR.has_credentials():
+        user = users.get_current_user()
+        login_url = users.create_login_url( "/oauth2callback" )
 
-            http = OAUTH_DECORATOR.http()
-            youtube = build('youtube', 'v3', http=http)
-            channel = youtube.channels().list(mine=True, part='id').execute()
-            channel_id = channel['items'][0]['id']
+        if user and user.email() != "test@example.com":
+            channel = Channel.query(Channel.user_id == user.user_id())
 
-            storage = StorageByKeyName(CredentialsModel, channel_id, 'credentials')
-            storage.get()
-
-            # Refresh Barbara's channel oauth tokens
-            if self.request.get('secret') == "channel": # and channel_id != Constants.BARBARA:
-                logging.info("Trying to store the channel")
-                storage.locked_get().revoke(httplib2.Http())
-                url = OAUTH_DECORATOR.authorize_url()
-                self.redirect( url )
-
-            # Refresh BarbBot's oauth tokens
-            elif self.request.get('secret') == "bot" and channel_id != Constants.BARBBOT:
-                storage.locked_get().revoke(httplib2.Http())
-                url = OAUTH_DECORATOR.authorize_url()
-                self.redirect( url )
-
-            self.response.write("""Using """+channel_id)
+            if channel is None:
+                self.redirect("/oauth2callback")
+            else:
+                self.response.write("USER!! %s %s " % (user.nickname(), users.create_logout_url("/login")))
 
         else:
-            logging.info("NO ONE")
-            url = OAUTH_DECORATOR.authorize_url()
-            self.redirect( url )
+            self.redirect( login_url )
+
+class Oauth2CallbackHandler(webapp2.RequestHandler):
+    # https://developers.google.com/api-client-library/python/auth/web-app#callinganapi
+
+    def get(self):
+        user = users.get_current_user()
+
+        if user is None:
+            self.redirect( users.create_login_url('/oauth2callback') )
+            return
+
+        flow = flow_from_clientsecrets(foo, scope=YOUTUBE_SCOPE, message=Constants.MISSING_CLIENT_SECRETS_MESSAGE, redirect_uri="http://8080-dot-2163697-dot-devshell.appspot.com/oauth2callback")
+
+        if not self.request.get('code'):
+            flow.params['access_type'] = 'offline'   # offline access
+            flow.params['prompt'] = 'consent'        # let them consent to it
+            auth_uri = flow.step1_get_authorize_url()
+
+            self.redirect( str(auth_uri) )
+            return
+
+        else:
+            auth_code = self.request.get('code')
+
+            credentials = flow.step2_exchange(auth_code)
+            channel = Channel.get_or_create( credentials, user )
+
+            logging.info(channel.external_id)
+            self.redirect("/login")
+            return
 
 app = webapp2.WSGIApplication([("/", LiveHandler),
                                ("/sponsors", SponsorsHandler),
                                ("/patch", PatchHandler),
                                ("/alerts_api", AlertsApiHandler),
                                ("/login", LoginHandler),
-                               (OAUTH_DECORATOR.callback_path, OAUTH_DECORATOR.callback_handler())
+                               ("/oauth2callback", Oauth2CallbackHandler)
                               ],
                               debug=True)
