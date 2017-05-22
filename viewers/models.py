@@ -37,3 +37,5 @@ class Viewer(ndb.Model):
     super_chat_total = ndb.FloatProperty()
 
     is_sponsor = ndb.BooleanProperty(default=False)
+
+    first_chat = ndb.TextProperty()
