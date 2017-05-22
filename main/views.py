@@ -10,21 +10,22 @@ import sys
 import webapp2
 
 from channels.models import *
-from google.appengine.api import users
-from google.appengine.ext.webapp import template
 from main.models import *
+from videos.models import *
 
 from apiclient.errors import HttpError
+from google.appengine.api import users
+from google.appengine.ext.webapp import template
 from oauth2client.client import flow_from_clientsecrets
 
 class LiveHandler(webapp2.RequestHandler):
     def get(self):
-
+        """
         # If in the dev server, don't redirect
         if os.environ.get('SERVER_SOFTWARE','').startswith('Development'):
             self.response.out.write("Hello and welcome to our dev server")
             return
-
+        """
         channel = Channel.query(Channel.external_id == constants.BARBARA_CHANNEL_ID).get()
 
         if channel is None:
@@ -33,7 +34,7 @@ class LiveHandler(webapp2.RequestHandler):
             return
 
         logging.info("Fetching top live videos")
-        top_live_video = channel.get_top_live_video_id()
+        top_live_video = Video.get_top_live_video_id( channel.credentials )
 
         if top_live_video != "":
             self.redirect( "https://gaming.youtube.com/watch?v=%s" % top_live_video)
@@ -55,7 +56,7 @@ class AlertsApiHandler(webapp2.RequestHandler):
             alert_response.append( {
                 'id': 'uuid' + str(i),
                 'name': 'Curious George' + str(i),
-                'image' : 'https://upload.wikimedia.org/wikipedia/en/d/d8/Curious_George.png',
+                'image' : 'https://yt3.ggpht.com/-KvBjE1iQ-Yk/AAAAAAAAAAI/AAAAAAAAAAA/8y92vRZBW2s/s88-c-k-no-mo-rj-c0xffffff/photo.jpg',
                 'text': 'msg' + str (i),
                 'amount' : i,
                 'sponsor' : i % 2
