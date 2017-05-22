@@ -35,7 +35,6 @@ class Video(ndb.Model):
         list_broadcasts_request = youtube.liveBroadcasts().list(
             broadcastStatus = "active",
             part="id,snippet",
-            filter="all",
             maxResults=50
             )
 
