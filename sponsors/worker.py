@@ -1,16 +1,12 @@
 import constants
-import httplib2
-import json
 import logging
-import os
+import time
 import webapp2
 
 from channels.models import Channel
 from sponsors.models import Sponsor
 
-from datetime import datetime
 from google.appengine.api import taskqueue
-from google.appengine.ext import ndb
 
 class EnqueueSponsorsFetchTaskHandler (webapp2.RequestHandler):
 
@@ -31,8 +27,16 @@ class SponsorsFetcherHandler( webapp2.RequestHandler ):
             logging.info("Video Fetcher: No channel")
             return
 
-        logging.info("Video Fetcher: Have a channel")
+        logging.info("Checking for new sponsors")
         Sponsor.get_sponsors( channel.credentials )
+
+        # Now, enqueue the next task
+        time.sleep(1)
+        task = taskqueue.add (
+            queue_name = "sponsors-queue",
+            url = "/sponsors/fetcher",
+            )
+
 
 app = webapp2.WSGIApplication([ ('/sponsors/fetcher', SponsorsFetcherHandler),
                                 ('/sponsors/enqueue', EnqueueSponsorsFetchTaskHandler)
