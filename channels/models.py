@@ -127,50 +127,36 @@ class Channel(ndb.Model):
 
 
     def get_top_live_video_id(self):
+
+        # Fetch all new live videos
+        self.get_and_save_live_videos()
+
+        live_videos = Video.query( Video.is_live == True ).fetch()
+
+        if len(live_videos) is 0:
+            return ""
+
         youtube = build(constants.YOUTUBE_API_SERVICE_NAME,
                         constants.YOUTUBE_API_VERSION,
                         http=self.credentials.authorize(httplib2.Http()))
 
-        # Fetch all streams that are currently live
-        list_broadcasts_request = youtube.liveBroadcasts().list(
-            broadcastStatus = "active",
-            part="id,snippet",
-            maxResults=50
-            )
+        top_concurrents = 0
+        top_video_id = live_videos[0].video_id
+        for live_video in live_videos:
 
-        top_concurrents = -1
-        top_video_id = ""
-        # Iterate through them, looking for the one with the most concurrents
-        while list_broadcasts_request:
-            list_broadcasts_response = list_broadcasts_request.execute()
-            broadcasts = list_broadcasts_response.get("items",[])
+            # Fetch concurrents from the videos API
+            videos = youtube.videos().list(part="liveStreamingDetails", id = live_video.video_id).execute()
 
-            if len( broadcasts ) == 0:
-                return ""
+            for video in videos.get("items", []):
+                try:
+                    concurrents = video["liveStreamingDetails"]["concurrentViewers"]
+                    logging.info("Concurernts %s" % concurrents)
 
-            # If only 1 broadcast, don't bother doing any more work.
-            elif len( broadcasts ) == 1:
-                return str(broadcasts[0]["id"])
-
-            for broadcast in broadcasts:
-
-                # Fetch concurrents from the videos API
-                videos = youtube.videos().list(part="liveStreamingDetails", id = broadcast["id"]).execute()
-
-                # NOTE: There's a bug if there are N >1 broadcasts and all have 0 viewers
-                for video in videos.get("items", []):
-                    try:
-                        concurrents = video["liveStreamingDetails"]["concurrentViewers"]
-                        logging.info("Concurernts %s" % concurrents)
-
-                        if concurrents >= top_concurrents:
-                            top_concurrents = concurrents
-                            top_video_id = broadcast["id"]
-                    except:
-                        logging.warning("Exception during concurrents")
-                        continue
-
-            list_broadcasts_request = youtube.liveBroadcasts().list_next(
-                list_broadcasts_request, list_broadcasts_response)
+                    if concurrents >= top_concurrents:
+                        top_concurrents = concurrents
+                        top_video_id = broadcast["id"]
+                except:
+                    logging.warning("Exception during concurrents")
+                    continue
 
         return str(top_video_id)
