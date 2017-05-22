@@ -1,11 +1,9 @@
 import constants
-import httplib2
-import json
+import helpers
+
 import logging
-import os
 
 from google.appengine.ext import ndb
-from apiclient.discovery import build
 
 class Video(ndb.Model):
     # Added this object was created
@@ -30,9 +28,7 @@ class Video(ndb.Model):
     def get_and_save_live_videos( credentials ):
         logging.info("Video.get_and_save_live_videos START")
 
-        youtube = build(constants.YOUTUBE_API_SERVICE_NAME,
-                        constants.YOUTUBE_API_VERSION,
-                        http=credentials.authorize(httplib2.Http()))
+        youtube = helpers.auth_http( credentials )
 
         # Fetch all streams that are currently live
         logging.info("get_and_save_live_videos: Fetching all live streams")
@@ -97,9 +93,7 @@ class Video(ndb.Model):
         if len(live_videos) is 0:
             return ""
 
-        youtube = build(constants.YOUTUBE_API_SERVICE_NAME,
-                        constants.YOUTUBE_API_VERSION,
-                        http=credentials.authorize(httplib2.Http()))
+        youtube = helpers.auth_http( credentials )
 
         top_concurrents = 0
         top_video_id = live_videos[0].video_id
