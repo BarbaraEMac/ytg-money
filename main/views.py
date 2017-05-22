@@ -10,7 +10,6 @@ import sys
 import webapp2
 
 from channels.models import *
-
 from google.appengine.api import users
 from google.appengine.ext.webapp import template
 from main.models import *
@@ -20,31 +19,26 @@ from oauth2client.client import flow_from_clientsecrets
 
 class LiveHandler(webapp2.RequestHandler):
     def get(self):
+
+        # If in the dev server, don't redirect
+        if os.environ.get('SERVER_SOFTWARE','').startswith('Development'):
+            self.response.out.write("Hello and welcome to our dev server")
+            return
+
         channel = Channel.query(Channel.external_id == constants.BARBARA_CHANNEL_ID).get()
 
+        if channel is None:
+            logging.info("No channel found. Redirecting to channel page")
+            self.redirect( "https://gaming.youtube.com/BarbaraEMac?action=subscribe")
+            return
+
+        logging.info("Fetching top live videos")
         top_live_video = channel.get_top_live_video_id()
 
         if top_live_video != "":
             self.redirect( "https://gaming.youtube.com/watch?v=%s" % top_live_video)
         else:
             self.redirect( "https://gaming.youtube.com/BarbaraEMac?action=subscribe")
-
-class SponsorsHandler(webapp2.RequestHandler):
-    def get(self):
-
-        storage = ndb.Key(CredentialsModel, Constants.BARBARA)
-        credential = storage.get()
-        if credential is None:
-            raise Exception("bad creds")
-
-        http = httplib2.Http()
-        http = credential.credentials.authorize(http)
-        resp, data = http.request("%ssponsors?part=snippet&maxResults=5&filter=all" % BASE_URL)
-        data = json.loads(data)
-        if 'error' in data:
-            raise Exception("Error fetching sponsors: %s" % json.dumps(data['error']))
-
-        self.response.out.write( json.dumps({'alerts': data}) )
 
 class PatchHandler(webapp2.RequestHandler):
 
@@ -100,10 +94,15 @@ class Oauth2CallbackHandler(webapp2.RequestHandler):
             self.redirect( users.create_login_url('/oauth2callback') )
             return
 
+        if os.environ.get('SERVER_SOFTWARE','').startswith('Development'):
+            bar = "https://8080-dot-2163697-dot-devshell.appspot.com/oauth2callback"
+        else:
+            bar = "https://ytg-money.appspot.com/oauth2callback"
+
         flow = flow_from_clientsecrets(constants.CLIENT_SECRETS,
                                        scope=constants.YOUTUBE_SCOPE,
                                        message=constants.MISSING_CLIENT_SECRETS_MESSAGE,
-                                       redirect_uri="http://8080-dot-2163697-dot-devshell.appspot.com/oauth2callback")
+                                       redirect_uri=bar )
 
         if not self.request.get('code'):
             flow.params['access_type'] = 'offline'   # offline access
@@ -123,8 +122,7 @@ class Oauth2CallbackHandler(webapp2.RequestHandler):
             self.redirect("/login")
             return
 
-app = webapp2.WSGIApplication([("/stream", LiveHandler),
-                               ("/sponsors", SponsorsHandler),
+app = webapp2.WSGIApplication([("/", LiveHandler),
                                ("/patch", PatchHandler),
                                ("/alerts_api", AlertsApiHandler),
                                ("/login", LoginHandler),

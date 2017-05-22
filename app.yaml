@@ -17,12 +17,16 @@ api_version: 1
 threadsafe: no
 
 handlers:
+- url: /robots.txt
+  static_dir: /static
 - url: /TemplateData/*
   static_dir: main/templates/webGL/TemplateData
 - url: /Build/*
   static_dir: main/templates/webGL/Build
 - url: /pumpkin_patch.*
   script: pumpkin_patch.pumpkin_patch.app
+- url: /videos/.*
+  script: videos.worker.app
 - url: .*
   script: main.views.app
 
@@ -34,3 +38,5 @@ libraries:
 
 skip_files:
 - ^(.*/)?unity.*
+- ^(.*/)?.git.*
+
