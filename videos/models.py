@@ -3,6 +3,8 @@ import helpers
 
 import logging
 
+from datetime import datetime
+from google.appengine.api import taskqueue
 from google.appengine.ext import ndb
 
 class Video(ndb.Model):
@@ -23,6 +25,18 @@ class Video(ndb.Model):
 
     def _post_put_hook(self, future):
         logging.info("VIDEO WAS JUST SAVED: %s %s" %(self.video_id, self.is_live))
+
+        # If we have a new LIVE video, start fetching things quickly
+        if self.is_live:
+             task = taskqueue.add( queue_name = "sponsors-queue",
+                                   url = "/sponsors/fetcher"
+                                 )
+
+        # Otherwise, turn everything off!
+        else:
+            q = taskqueue.Queue( "sponsors-queue" )
+            q.purge()
+
 
     @staticmethod
     def get_and_save_live_videos( credentials ):
