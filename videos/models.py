@@ -35,6 +35,7 @@ class Video(ndb.Model):
         list_broadcasts_request = youtube.liveBroadcasts().list(
             broadcastStatus = "active",
             part="id,snippet",
+            filter="all",
             maxResults=50
             )
 
@@ -44,6 +45,9 @@ class Video(ndb.Model):
         while list_broadcasts_request:
             list_broadcasts_response = list_broadcasts_request.execute()
             broadcasts = list_broadcasts_response.get("items",[])
+
+            if len(broadcasts) == 0:
+                return
 
             for broadcast in broadcasts:
                 logging.info("get_and_save_live_videos: Iterating over broadcasts")
