@@ -8,7 +8,9 @@ function Update () {
     var inputStr : String = Input.inputString;
     var numberPKeyPresses : int = numStringOccurances(inputStr, "p");
     if (numberPKeyPresses > 0) {
-	gameObject.SendMessage("addPumpkin");
+	var p : Pumpkin = new Pumpkin();
+	p.name = "foo";
+	gameObject.SendMessage("enqueuePumpkin", p);
     }
 }
 
