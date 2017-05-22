@@ -17,11 +17,11 @@ class EnqueueVideoFetchTaskHandler (webapp2.RequestHandler):
 
         task = taskqueue.add (
             queue_name = "videos-queue",
-            url = "/videos/fetcher",
+            url = "/videos/live_fetcher",
             )
         self.response.out.write('Task {} enqueued, ETA {}.'.format(task.name, task.eta))
 
-class VideosFetcherHandler( webapp2.RequestHandler ):
+class LiveVideosFetcherHandler( webapp2.RequestHandler ):
 
     def post(self):
         channel = Channel.query(Channel.external_id == constants.BARBARA_CHANNEL_ID).get()
@@ -33,6 +33,6 @@ class VideosFetcherHandler( webapp2.RequestHandler ):
         logging.info("Video Fetcher: Have a channel")
         channel.get_and_save_live_videos()
 
-app = webapp2.WSGIApplication([ ('/videos/fetcher', VideosFetcherHandler),
+app = webapp2.WSGIApplication([ ('/videos/live_fetcher', LiveVideosFetcherHandler),
                                 ('/videos/enqueue', EnqueueVideoFetchTaskHandler)
                               ], debug=True)
