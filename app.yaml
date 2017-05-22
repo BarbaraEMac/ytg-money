@@ -25,6 +25,12 @@ handlers:
   static_dir: main/templates/webGL/Build
 - url: /pumpkin_patch.*
   script: pumpkin_patch.pumpkin_patch.app
+- url: /sponsors/.*
+  script: sponsors.worker.app
+- url: /subs/.*
+  script: subscribers.worker.app
+- url: /superchats/.*
+  script: superchats.worker.app
 - url: /videos/.*
   script: videos.worker.app
 - url: .*
