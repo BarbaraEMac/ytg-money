@@ -9,8 +9,11 @@ function Start () {
     if (www.error == null) {
 	Debug.Log("success!");
 	printResponseHeaders(www);
-	Debug.Log(www.text);
-	Debug.Log(JsonUtility.FromJson.<AlertArray>(www.text).alerts[0]);
+// 	var alerts : AlertArray;
+// 	alerts = JsonUtility.FromJson.<AlertArray>(www.text);
+	var alerts : Alert[];
+	alerts = JsonUtility.FromJson.<Alert[]>(www.text);
+	// Debug.Log(alerts[0].name);
     } else {
 	Debug.Log("error: " + www.error);
     }
