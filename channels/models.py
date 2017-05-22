@@ -4,10 +4,13 @@ import json
 import logging
 import os
 
+from videos.models import Video
+
+from apiclient.discovery import build
+from datetime import datetime
 from google.appengine.api import users
 from google.appengine.ext import ndb
 from oauth2client.contrib.appengine import CredentialsNDBProperty
-from apiclient.discovery import build
 
 class Channel(ndb.Model):
     # Added this object was created
@@ -62,6 +65,52 @@ class Channel(ndb.Model):
             channel.put()
 
         return channel
+
+    def get_and_save_live_videos(self):
+        logging.info("Channel.get_and_save_live_videos START")
+
+        youtube = build(constants.YOUTUBE_API_SERVICE_NAME,
+                        constants.YOUTUBE_API_VERSION,
+                        http=self.credentials.authorize(httplib2.Http()))
+
+        # Fetch all streams that are currently live
+        logging.info("get_and_save_live_videos: Fetching all live streams")
+        list_broadcasts_request = youtube.liveBroadcasts().list(
+            broadcastStatus = "active",
+            part="id,snippet",
+            maxResults=50
+            )
+
+        while list_broadcasts_request:
+            list_broadcasts_response = list_broadcasts_request.execute()
+            broadcasts = list_broadcasts_response.get("items",[])
+
+            for broadcast in broadcasts:
+                logging.info("get_and_save_live_videos: Iterating over broadcasts")
+
+                video_id = broadcast["id"]
+
+                video = Video.query( Video.video_id == video_id ).get()
+
+                if video is None:
+                    # If we don't have this video in the DB, make on
+
+                    start_time = datetime.strptime( broadcast["snippet"]["actualStartTime"], "%Y-%m-%dT%H:%M:%S.%fZ" )
+
+                    video = Video( title = broadcast["snippet"]["title"],
+                                   channel_id = broadcast["snippet"]["channelId"],
+                                   video_id = video_id,
+                                   start_time = start_time,
+                                   is_live = True
+                                )
+
+                    logging.info("get_and_save_live_videos: Saving 1 live video: %s" % video_id)
+                    video.put()
+                    # end for
+
+            list_broadcasts_request = youtube.liveBroadcasts().list_next(
+                list_broadcasts_request, list_broadcasts_response)
+
 
     def get_top_live_video_id(self):
         youtube = build(constants.YOUTUBE_API_SERVICE_NAME,

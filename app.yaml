@@ -23,6 +23,8 @@ handlers:
   static_dir: main/templates/webGL/Build
 - url: /pumpkin_patch.*
   script: pumpkin_patch.pumpkin_patch.app
+- url: /videos/.*
+  script: videos.worker.app
 - url: .*
   script: main.views.app
 

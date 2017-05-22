@@ -13,13 +13,14 @@ class Video(ndb.Model):
     # Added this object was created
     created_date = ndb.DateTimeProperty(auto_now_add=True)
 
+    channel_id = ndb.StringProperty(indexed=True)
+
     title = ndb.StringProperty()
 
-    video_id = ndb.StringProperty()
+    video_id = ndb.StringProperty(indexed=True)
 
     start_time = ndb.DateTimeProperty()
 
     end_time = ndb.DateTimeProperty()
 
     is_live = ndb.BooleanProperty(default=False)
-

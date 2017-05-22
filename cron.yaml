@@ -1,0 +1,7 @@
+# cron.yaml
+
+cron:
+- description: "Look for new live videos"
+  url: /videos/enqueue
+  schedule: every 1 mins from 16:00 to 21:00
+  timezone: America/Low_Angeles
