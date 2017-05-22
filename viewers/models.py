@@ -4,7 +4,7 @@ import json
 import logging
 import os
 
-from videos import Video
+from videos.models import Video
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
@@ -16,7 +16,7 @@ class Viewer(ndb.Model):
     created_date = ndb.DateTimeProperty(auto_now_add=True)
 
     # YouTube channel id
-    external_id = ndb.StringProperty(default="", indexed=True)
+    channel_id = ndb.StringProperty(default="", indexed=True)
 
     # YouTube channel url
     channel_url = ndb.StringProperty(default="", indexed=True)
@@ -29,10 +29,10 @@ class Viewer(ndb.Model):
 
     num_streams = ndb.IntegerProperty()
 
-    first_stream = ndb.StructuredProperty(videos.Video)
-    most_recent_stream = ndb.StructuredProperty(videos.Video)
+    first_stream = ndb.StructuredProperty(Video)
+    most_recent_stream = ndb.StructuredProperty(Video)
 
-    all_streams = ndb.StructuredProperty(videos.Video, repeated=True)
+    all_streams = ndb.StructuredProperty(Video, repeated=True)
 
     super_chat_total = ndb.FloatProperty()
 
