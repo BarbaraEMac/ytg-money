@@ -12,10 +12,9 @@ class EnqueueSponsorsFetchTaskHandler (webapp2.RequestHandler):
 
     def get(self):
 
-        task = taskqueue.add (
-            queue_name = "sponsors-queue",
-            url = "/sponsors/fetcher",
-            )
+        task = taskqueue.add( queue_name = "sponsors-queue",
+                              url = "/sponsors/fetcher"
+                            )
         self.response.out.write('Task {} enqueued, ETA {}.'.format(task.name, task.eta))
 
 class SponsorsFetcherHandler( webapp2.RequestHandler ):
@@ -32,11 +31,9 @@ class SponsorsFetcherHandler( webapp2.RequestHandler ):
 
         # Now, enqueue the next task
         time.sleep(1)
-        task = taskqueue.add (
-            queue_name = "sponsors-queue",
-            url = "/sponsors/fetcher",
-            )
-
+        task = taskqueue.add( queue_name = "sponsors-queue",
+                              url = "/sponsors/fetcher"
+                            )
 
 app = webapp2.WSGIApplication([ ('/sponsors/fetcher', SponsorsFetcherHandler),
                                 ('/sponsors/enqueue', EnqueueSponsorsFetchTaskHandler)
