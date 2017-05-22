@@ -55,7 +55,7 @@ class AlertsApiHandler(webapp2.RequestHandler):
             alert_response.append( {
                 'id': 'uuid' + str(i),
                 'name': 'Curious George' + str(i),
-                'image' : 'https://upload.wikimedia.org/wikipedia/en/d/d8/Curious_George.png',
+                'image' : 'https://yt3.ggpht.com/-KvBjE1iQ-Yk/AAAAAAAAAAI/AAAAAAAAAAA/8y92vRZBW2s/s88-c-k-no-mo-rj-c0xffffff/photo.jpg',
                 'text': 'msg' + str (i),
                 'amount' : i,
                 'sponsor' : i % 2
