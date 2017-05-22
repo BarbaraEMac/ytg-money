@@ -2,3 +2,12 @@ queue:
 - name: videos-queue
   rate: 1/s
   max_concurrent_requests: 1
+- name: sponsors-queue
+  rate: 1/s
+  max_concurrent_requests: 1
+- name: subscribers-queue
+  rate: 1/s
+  max_concurrent_requests: 1
+- name: superchats-queue
+  rate: 1/s
+  max_concurrent_requests: 1

@@ -6,6 +6,7 @@ import os
 import webapp2
 
 from channels.models import Channel
+from videos.models import Video
 
 from datetime import datetime
 from google.appengine.api import taskqueue
@@ -31,7 +32,7 @@ class LiveVideosFetcherHandler( webapp2.RequestHandler ):
             return
 
         logging.info("Video Fetcher: Have a channel")
-        channel.get_and_save_live_videos()
+        Video.get_and_save_live_videos( channel.credentials )
 
 app = webapp2.WSGIApplication([ ('/videos/live_fetcher', LiveVideosFetcherHandler),
                                 ('/videos/enqueue', EnqueueVideoFetchTaskHandler)
