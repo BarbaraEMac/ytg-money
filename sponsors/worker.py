@@ -28,7 +28,7 @@ class SponsorsFetcherHandler( webapp2.RequestHandler ):
             return
 
         logging.info("Checking for new sponsors")
-        Sponsor.get_sponsors( channel.credentials )
+        Sponsor.get_sponsors( channel.credentials, channel.external_id )
 
         # Now, enqueue the next task
         time.sleep(1)

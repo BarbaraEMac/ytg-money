@@ -23,12 +23,17 @@ class Sponsor(ndb.Model):
     viewer = ndb.StructuredProperty(Viewer)
 
     @staticmethod
-    def get_sponsors( credentials ):
+    def get_sponsors( credentials, requesting_channel_id ):
+
         youtube = helpers.auth_http( credentials )
 
         request = youtube.sponsors().list( part="id,snippet",
                                            filter="all",
                                            maxResults=50 )
+
+        former_sponsors = Sponsor.query( Sponsor.sponsored_channel_id == requesting_channel_id ).fetch()
+        sponsor_ids = []
+
         while request:
             # Fetch first batch of 50
             response = request.execute()
@@ -47,6 +52,8 @@ class Sponsor(ndb.Model):
                 name = sponsor['sponsorDetails']['displayName']
                 image = sponsor['sponsorDetails']['profileImageUrl']
                 sponsor_since = datetime.strptime( sponsor["sponsorSince"], "%Y-%m-%dT%H:%M:%S.%fZ" )
+
+                sponsor_ids.append(channel_id)
 
                 spn = Sponsor.query( Sponsor.viewer.channel_id == channel_id ).get()
 
@@ -78,4 +85,15 @@ class Sponsor(ndb.Model):
 
             request = youtube.sponsors().list_next( request, response )
             # end while
+
+        # Invalidate people who have left
+        for former in former_sponsors:
+            if former.viewer.channel_id not in sponsor_ids:
+
+                former.viewer.is_sponsor = False
+                former.viewer.put()
+
+                former.cancelled_date = datetime.now()
+                former.is_active = False
+                former.put()
 
