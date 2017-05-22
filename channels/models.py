@@ -81,6 +81,9 @@ class Channel(ndb.Model):
             maxResults=50
             )
 
+        formerly_live = Video.query( Video.is_live == True ).fetch()
+
+        live_ids = []
         while list_broadcasts_request:
             list_broadcasts_response = list_broadcasts_request.execute()
             broadcasts = list_broadcasts_response.get("items",[])
@@ -89,6 +92,7 @@ class Channel(ndb.Model):
                 logging.info("get_and_save_live_videos: Iterating over broadcasts")
 
                 video_id = broadcast["id"]
+                live_ids.append(video_id)
 
                 video = Video.query( Video.video_id == video_id ).get()
 
@@ -110,6 +114,16 @@ class Channel(ndb.Model):
 
             list_broadcasts_request = youtube.liveBroadcasts().list_next(
                 list_broadcasts_request, list_broadcasts_response)
+            # end while
+
+        # Go through formerly live videos.
+        # If we didn't fetch it now, it must be over.
+        for stream in formerly_live:
+            if stream.video_id not in live_ids:
+                logging.info("get_and_save_live_videos: %s is no longer live" % stream.video_id)
+                stream.is_live = False
+                stream.end_time = datetime.now()
+                stream.put()
 
 
     def get_top_live_video_id(self):
