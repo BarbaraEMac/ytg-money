@@ -25,6 +25,8 @@ class EnqueueVideoFetchTaskHandler (webapp2.RequestHandler):
 class LiveVideosFetcherHandler( webapp2.RequestHandler ):
 
     def post(self):
+        return
+        """
         channel = Channel.query(Channel.external_id == constants.BARBARA_CHANNEL_ID).get()
 
         if channel is None:
@@ -33,6 +35,7 @@ class LiveVideosFetcherHandler( webapp2.RequestHandler ):
 
         logging.info("Video Fetcher: Have a channel")
         Video.get_and_save_live_videos( channel.credentials )
+        """
 
 app = webapp2.WSGIApplication([ ('/videos/live_fetcher', LiveVideosFetcherHandler),
                                 ('/videos/enqueue', EnqueueVideoFetchTaskHandler)

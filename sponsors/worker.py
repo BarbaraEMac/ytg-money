@@ -20,6 +20,8 @@ class EnqueueSponsorsFetchTaskHandler (webapp2.RequestHandler):
 class SponsorsFetcherHandler( webapp2.RequestHandler ):
 
     def post(self):
+        return
+        """
         channel = Channel.query(Channel.external_id == constants.BARBARA_CHANNEL_ID).get()
 
         if channel is None:
@@ -34,6 +36,7 @@ class SponsorsFetcherHandler( webapp2.RequestHandler ):
         task = taskqueue.add( queue_name = "sponsors-queue",
                               url = "/sponsors/fetcher"
                             )
+        """
 
 app = webapp2.WSGIApplication([ ('/sponsors/fetcher', SponsorsFetcherHandler),
                                 ('/sponsors/enqueue', EnqueueSponsorsFetchTaskHandler)
