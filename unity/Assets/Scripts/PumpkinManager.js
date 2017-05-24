@@ -2,13 +2,14 @@
 
 var nameText : UnityEngine.UI.Text;
 var backgroundRenderer : SpriteRenderer;
+var highlightRenderer : SpriteRenderer;
 var profileRenderer : SpriteRenderer;
 
 private var pumpkinOrange : Color = Color(1.0, 0.4, 0.0);
 
 function Start () {
     if (backgroundRenderer.color == Color.white) {
-	SetColor(pumpkinOrange);
+	SetPrimaryColor(pumpkinOrange);
     }
 }
 
@@ -19,7 +20,7 @@ function Update () {
 function OnMouseDown() {
     Debug.Log("Pumpkin Clicked!");
     StartCoroutine(AnimatedScale(2.0f, 0.5f));
-    SetColor(Color.red);
+    SetPrimaryColor(Color.red);
 }
 
 function AnimatedScale(factor : float, duration : float) {
@@ -33,12 +34,16 @@ function AnimatedScale(factor : float, duration : float) {
     }
 }
 
-function SetColor(newColor : Color){
+function SetPrimaryColor(newColor : Color){
     backgroundRenderer.color = newColor;
 }
 
+function SetHighlightColor(newColor : Color){
+    highlightRenderer.color = newColor;
+}
+
 function SetName(newName : String){
-    nameText.text = newName;
+    // nameText.text = newName;
 }
 
 function SetProfile(newSprite : Sprite){

@@ -2,15 +2,23 @@
 
 var pumpkinPrefab : GameObject;
 var pumpkinsToAdd : int = 0;
-var secondsBetweenAdditions : float = 0.5f;
+var secondsBetweenAdditions : float = .5f;
 
-private var superBlue : Color = Color(21.0/255.0, 101.0/255.0, 192.0/255.0);
-private var superTeal : Color = Color(0.0, 229.0/255.0, 1);
-private var superGreen : Color = Color(29.0/255.0, 233.0/255.0, 182.0/255.0);
-private var superYellow : Color = Color(1, 202.0/255.0, 40.0/255.0);
-private var superOrange : Color = Color(245.0/255.0, 124.0/255.0, 0);
-private var superPink : Color = Color(233.0/255.0, 30.0/255.0, 99.0/255.0);
-private var superRed : Color = Color(230.0/255.0, 33.0/255.0, 23.0/255.0);
+private var superLightBlue : Color = Color(21.0/255.0, 101.0/255.0, 192.0/255.0);
+private var superLightTeal : Color = Color(0.0, 229.0/255.0, 1);
+private var superLightGreen : Color = Color(29.0/255.0, 233.0/255.0, 182.0/255.0);
+private var superLightYellow : Color = Color(1, 202.0/255.0, 40.0/255.0);
+private var superLightOrange : Color = Color(245.0/255.0, 124.0/255.0, 0);
+private var superLightPink : Color = Color(233.0/255.0, 30.0/255.0, 99.0/255.0);
+private var superLightRed : Color = Color(230.0/255.0, 33.0/255.0, 23.0/255.0);
+
+private var superDarkBlue : Color = Color(15.0/255.0, 72.0/255.0, 137.0/255.0);
+private var superDarkTeal : Color = Color(0.0, 184.0/255.0, 212.0/255.0);
+private var superDarkGreen : Color = Color(0.0, 191.0/255.0, 165.0/255.0);
+private var superDarkYellow : Color = Color(255.0, 179.0/255.0, 0.0);
+private var superDarkOrange : Color = Color(230.0/255.0, 81.0/255.0, 0.0);
+private var superDarkPink : Color = Color(194.0/255.0, 24.0/255.0, 91.0/255.0);
+private var superDarkRed : Color = Color(208.0/255.0, 0.0, 0.0);
 
 function Start () {
     
@@ -38,8 +46,10 @@ function instantiatePumpkinPrefab(newPumpkin : Pumpkin) {
     if (newPumpkin.profile != null) {
         newPumpkinObject.SendMessage("SetProfile", newPumpkin.profile);
     }
-    var pumpkinColor : Color = ColorForAmmount(newPumpkin.amount);
-    newPumpkinObject.SendMessage("SetColor", pumpkinColor);
+    var pumpkinColor : Color = PrimaryColorForAmount(newPumpkin.amount);
+    newPumpkinObject.SendMessage("SetPrimaryColor", pumpkinColor);
+    var pumpkinHighlightColor : Color = HighlightColorForAmount(newPumpkin.amount);
+    newPumpkinObject.SendMessage("SetHighlightColor", pumpkinHighlightColor);
 }
 
 class Pumpkin {
@@ -48,19 +58,36 @@ class Pumpkin {
     var amount : int;
 }
 
-function ColorForAmmount(dollarAmmount : int) {
+function PrimaryColorForAmount(dollarAmmount : int) {
     if (dollarAmmount < 2) {
-        return superBlue;
+        return superLightBlue;
     } else if (dollarAmmount < 5) {
-        return superTeal;
+        return superLightTeal;
     } else if (dollarAmmount < 10) {
-        return superGreen;
+        return superLightGreen;
     } else if (dollarAmmount < 20) {
-        return superYellow;
+        return superLightYellow;
     } else if (dollarAmmount < 50) {
-        return superOrange;
+        return superLightOrange;
     } else if (dollarAmmount < 100) {
-        return superPink;
+        return superLightPink;
     }
-    return superRed;
+    return superLightRed;
+}
+
+function HighlightColorForAmount(dollarAmmount : int) {
+    if (dollarAmmount < 2) {
+        return superDarkBlue;
+    } else if (dollarAmmount < 5) {
+        return superDarkTeal;
+    } else if (dollarAmmount < 10) {
+        return superDarkGreen;
+    } else if (dollarAmmount < 20) {
+        return superDarkYellow;
+    } else if (dollarAmmount < 50) {
+        return superDarkOrange;
+    } else if (dollarAmmount < 100) {
+        return superDarkPink;
+    }
+    return superDarkRed;
 }
