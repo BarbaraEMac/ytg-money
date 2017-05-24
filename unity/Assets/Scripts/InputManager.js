@@ -1,9 +1,5 @@
 ﻿#pragma strict
 
-function Start () {
-    Debug.Log("Hello World");
-}
-
 function Update () {
     var inputStr : String = Input.inputString;
     var numberPKeyPresses : int = numStringOccurances(inputStr, "p");

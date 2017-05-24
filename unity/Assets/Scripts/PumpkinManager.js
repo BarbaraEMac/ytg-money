@@ -1,10 +1,10 @@
 ﻿#pragma strict
 
-var pumpkinOrange : Color = Color(1.0, 0.4, 0.0);
-var topLayerDepth : float = 0.0f;
 var nameText : UnityEngine.UI.Text;
 var backgroundRenderer : SpriteRenderer;
 var profileRenderer : SpriteRenderer;
+
+private var pumpkinOrange : Color = Color(1.0, 0.4, 0.0);
 
 function Start () {
     if (backgroundRenderer.color == Color.white) {

@@ -37,6 +37,7 @@ function fetchAlerts() {
 function addPumpkinFromAlert(alert : Alert) {
     var pumpkin : Pumpkin = new Pumpkin();
     pumpkin.name = alert.name;
+    pumpkin.amount = alert.amount;
 
     var imageWWW : WWW = new WWW(alert.image);
     yield imageWWW;
