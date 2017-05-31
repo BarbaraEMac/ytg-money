@@ -6,15 +6,41 @@ var highlightRenderer : SpriteRenderer;
 var profileRenderer : SpriteRenderer;
 
 private var pumpkinOrange : Color = Color(1.0, 0.4, 0.0);
+private var isMoving = false;
+private var pumpkinBody : Rigidbody2D;
 
 function Start () {
     if (backgroundRenderer.color == Color.white) {
 	SetPrimaryColor(pumpkinOrange);
     }
+    
+    pumpkinBody = gameObject.GetComponentInChildren(Rigidbody2D);
+    if (pumpkinBody == null) {
+        Debug.LogError("PumpkinManager GameObject requires Rigidbody2D.");
+    }
 }
 
 function Update () {
-    
+    if (pumpkinBody.velocity.magnitude < 0.001 &&
+        pumpkinBody.angularVelocity < 0.001) {
+        if (isMoving) {
+            isMoving = false;
+            OnStopMoving();
+        }
+    } else {
+        if (!isMoving) {
+            isMoving = true;
+            OnStartMoving();
+        }
+    }
+}
+
+function OnStopMoving() {
+    Debug.Log("Pumpkin stopped");
+}
+
+function OnStartMoving() {
+    Debug.Log("Pumpkin started moving");
 }
 
 function OnMouseDown() {
