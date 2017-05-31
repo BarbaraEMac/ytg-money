@@ -1,7 +1,8 @@
 ﻿#pragma strict
 
 var fetchingAlerts = false;
-private var alertsURL = "https://ytg-money.appspot.com/alerts_api";
+private var host = "https://ytg-money.appspot.com";
+private var alertsURL = host + "/alerts_api";
 
 function Start () {
     // This should be moved to the update function once we have non-canned data
