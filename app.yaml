@@ -33,6 +33,8 @@ handlers:
   script: superchats.worker.app
 - url: /videos/.*
   script: videos.worker.app
+- url: /pumpkins.*
+  script: pumpkins.handler.app
 - url: .*
   script: main.views.app
 
