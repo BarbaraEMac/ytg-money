@@ -22,9 +22,5 @@ function enqueuePumpkin(newPumpkin : Pumpkin) {
 function instantiatePumpkinPrefab(newPumpkin : Pumpkin) {
     var newPumpkinObject : GameObject = Instantiate(pumpkinPrefab);
 
-    newPumpkin.yPosition = 6;
-    newPumpkin.xPosition = Random.Range(-1.0f, 1.0f);
-    newPumpkin.rotation = Random.Range(-40.0f, 40.0f);
-
     newPumpkinObject.SendMessage("SetPumpkin", newPumpkin);
 }

@@ -41,6 +41,14 @@ function Start () {
     if (pumpkinBody == null) {
         Debug.LogError("PumpkinManager GameObject requires Rigidbody2D.");
     }
+
+    // Lower the pumpkin's center of mass to make them less rolly.
+    var pumpkinCollider : Collider2D = gameObject.GetComponentInChildren(Collider2D);
+    if (pumpkinCollider == null) {
+        Debug.LogError("PumpkinManager GameObject requires Collider2D");
+    }
+    
+    pumpkinBody.centerOfMass.y -= pumpkinCollider.bounds.extents.y / 2.0f;
 }
 
 function Update () {
@@ -59,6 +67,7 @@ function Update () {
 }
 
 function OnStopMoving() {
+    Debug.Log("Stopped Moving");
     updatePumpkin(pumpkin);
 }
 
@@ -104,27 +113,28 @@ function SetPumpkin (newPumpkin : Pumpkin) {
     }
     if (pumpkin.profile != null) {
         SetProfile(pumpkin.profile);
-    } else {
-        pumpkin.profileURL = "";
+    } 
+    if (pumpkin.profile_URL == null) {
+        pumpkin.profile_URL = "";
     }
     if (pumpkin.gameObject == null) {
         pumpkin.gameObject = gameObject;
     }
     SetPrimaryColor(PrimaryColorForAmount(pumpkin.amount));
     SetHighlightColor(HighlightColorForAmount(pumpkin.amount));
-    gameObject.transform.position.x = pumpkin.xPosition;
-    gameObject.transform.position.y = pumpkin.yPosition;
+    gameObject.transform.position.x = pumpkin.x_position;
+    gameObject.transform.position.y = pumpkin.y_position;
     gameObject.transform.eulerAngles.z = pumpkin.rotation;
 }
 
 class Pumpkin {
     var id : String;
-    var name : String;
+    var user_name : String;
     var profile : Sprite;
-    var profileURL : String;
+    var profile_URL : String;
     var amount : int;
-    var xPosition : float;
-    var yPosition : float;
+    var x_position : float;
+    var y_position : float;
     var rotation : float;
     var gameObject : GameObject;
 }
@@ -172,17 +182,17 @@ function updatePumpkin(pumpkin : Pumpkin) {
     isUpdating = true;
 
     while (hasMoved(pumpkin)) {
-        pumpkin.xPosition = gameObject.transform.position.x;
-        pumpkin.yPosition = gameObject.transform.position.y;
+        pumpkin.x_position = gameObject.transform.position.x;
+        pumpkin.y_position = gameObject.transform.position.y;
         pumpkin.rotation = gameObject.transform.eulerAngles.z;
 
         var form = new WWWForm();
         form.AddField("id", pumpkin.id);
-        form.AddField("user_name", pumpkin.name);
+        form.AddField("user_name", pumpkin.user_name);
         form.AddField("amount", pumpkin.amount);
-        form.AddField("profile_URL", pumpkin.profileURL);
-        form.AddField("x_position", pumpkin.xPosition);
-        form.AddField("y_position", pumpkin.yPosition);
+        form.AddField("profile_URL", pumpkin.profile_URL);
+        form.AddField("x_position", pumpkin.x_position);
+        form.AddField("y_position", pumpkin.y_position);
         form.AddField("rotation", pumpkin.rotation);
 
         var www = WWW(pumpkinURL, form);
@@ -199,9 +209,9 @@ function updatePumpkin(pumpkin : Pumpkin) {
 
 function hasMoved(pumpkin : Pumpkin) {
     return (Mathf.Abs(gameObject.transform.position.x - 
-                      pumpkin.xPosition) < .001 &&
+                      pumpkin.x_position) > .001 &&
             Mathf.Abs(gameObject.transform.position.y - 
-                      pumpkin.yPosition) < .001 &&
+                      pumpkin.y_position) > .001 &&
             Mathf.Abs(gameObject.transform.eulerAngles.z - 
-                      pumpkin.rotation) < .001);
+                      pumpkin.rotation) > .001);
 }

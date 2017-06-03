@@ -5,7 +5,7 @@ function Update () {
     var numberPKeyPresses : int = numStringOccurances(inputStr, "p");
     if (numberPKeyPresses > 0) {
 	var p : Pumpkin = new Pumpkin();
-	p.name = "foo";
+	p.user_name = "foo";
 	gameObject.SendMessage("enqueuePumpkin", p);
     }
 }

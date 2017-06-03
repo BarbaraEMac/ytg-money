@@ -7,6 +7,14 @@ from pumpkins.models import Pumpkin
 
 class PumpkinHandler (webapp2.RequestHandler):
 
+    def get(self):
+        q = Pumpkin.query()
+        results = q.fetch()
+        serializableResults = [result.to_dict() for result in results]
+
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps({'pumpkins': serializableResults}))
+
     def post(self):
         requiredFields = ["id","user_name", "amount", "profile_URL", 
                           "x_position", "y_position", "rotation"]

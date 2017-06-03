@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 import constants
+import datetime
 import httplib2
 import json
 import logging
 import os
 import re
+import random
 import sys
 import webapp2
 
@@ -49,22 +51,24 @@ class PatchHandler(webapp2.RequestHandler):
 class AlertsApiHandler(webapp2.RequestHandler):
 
     def get(self):
+        if (datetime.now().second % 10 != 0):
+            return
 
         alert_response = []
 
-        dollarAmounts = [1, 2, 5, 10, 20, 50, 100, 200, 500]
-        i = 0
-        for amount in dollarAmounts:
-            
-            alert_response.append( {
+        dollarAmounts = [1, 2, 5, 10, 20, 50, 100]
+        i = random.randrange(len(dollarAmounts) - 1)
+        amount = random.choice(dollarAmounts)
+        
+        alert_response.append( {
                 'id': 'uuid' + str(i),
+                'channel_id': 'channel:' + str(i),
                 'name': 'Curious George' + str(amount),
                 'image' : 'https://yt3.ggpht.com/-KvBjE1iQ-Yk/AAAAAAAAAAI/AAAAAAAAAAA/8y92vRZBW2s/s88-c-k-no-mo-rj-c0xffffff/photo.jpg',
                 'text': 'msg' + str (amount),
                 'amount' : amount,
                 'sponsor' : i % 2
                 })
-            i += 1
 
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write( json.dumps({'alerts': alert_response}) )
