@@ -1,32 +1,35 @@
 import webapp2
 import json
+import logging
 
+from google.appengine.ext import ndb
 from pumpkins.models import Pumpkin
 
 class PumpkinHandler (webapp2.RequestHandler):
 
-    def put(self):
-        jsonObject = json.loads(self.request.body)
-
-        requiredFields = ["user_name", "amount", "profile_URL", "x_position",
-                          "y_position", "rotation"]
+    def post(self):
+        requiredFields = ["id","user_name", "amount", "profile_URL", 
+                          "x_position", "y_position", "rotation"]
 
         for requiredField in requiredFields:
-            if requiredField in jsonObject:
-                continue
-            else:
+            values = self.request.get_all(requiredField)
+            if len(values) <= 0:
                 self.error(400)
-                self.response.write('Missing required field "' + requiredField +
-                                    '"')
+                errStr = 'Request requires field "' + requiredField + '"'
+                self.response.write(errStr)                                    
+                logging.info(errStr)
                 return
 
-        pumpkin = Pumpkin()
-        pumpkin.user_name = jsonObject["user_name"]
-        pumpkin.amount = jsonObject["amount"]
-        pumpkin.profile_URL = jsonObject ["profile_URL"]
-        pumpkin.x_position = jsonObject ["x_position"]
-        pumpkin.y_position = jsonObject ["y_position"]
-        pumpkin.rotation = jsonObject ["rotation"]
+        pumpkinID = self.request.get("id")
+        pumpkinKey = ndb.Key('Pumpkin', pumpkinID)
+        pumpkin = Pumpkin(key = pumpkinKey)
+        pumpkin.id = pumpkinID
+        pumpkin.user_name = self.request.get("user_name")
+        pumpkin.amount = int(self.request.get("amount"))
+        pumpkin.profile_URL = self.request.get("profile_URL")
+        pumpkin.x_position = float(self.request.get("x_position"))
+        pumpkin.y_position = float(self.request.get("y_position"))
+        pumpkin.rotation = float(self.request.get("rotation"))
         pumpkin.put()
         return
 

@@ -49,6 +49,7 @@ function addPumpkinFromAlert(alert : Alert) {
                                              new Rect(0, 0, w, h), 
                                              new Vector2(0,0));
     pumpkin.profile = imageSprite;
+    pumpkin.profileURL = alert.image;
     
     gameObject.SendMessage("enqueuePumpkin", pumpkin);
 }
