@@ -33,7 +33,7 @@ class SponsorsFetcherHandler( webapp2.RequestHandler ):
         Sponsor.get_sponsors( channel.credentials, channel.external_id )
 
         if len( Video.query( Video.is_live == True ).fetch()) != 0:
-            time.sleep(5)
+            #time.sleep(5)
             task = taskqueue.add( queue_name = "sponsors-queue",
                                   url = "/sponsors/fetcher"
                                 )
