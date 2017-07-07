@@ -15,12 +15,22 @@ from google.appengine.ext import ndb
 class EnqueueVideoFetchTaskHandler (webapp2.RequestHandler):
 
     def get(self):
+        channel = Channel.query(Channel.external_id == constants.BARBARA_CHANNEL_ID).get()
 
+        if channel is None:
+            logging.info("Video Fetcher: No channel")
+            return
+
+        logging.info("Video Fetcher: Have a channel")
+        Video.get_and_save_live_videos( channel.credentials )
+
+        """
         task = taskqueue.add (
             queue_name = "videos-queue",
             url = "/videos/live_fetcher",
             )
         self.response.out.write('Task {} enqueued, ETA {}.'.format(task.name, task.eta))
+        """
 
 class LiveVideosFetcherHandler( webapp2.RequestHandler ):
 
