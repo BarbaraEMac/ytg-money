@@ -21,18 +21,22 @@ class EnqueueSponsorsFetchTaskHandler (webapp2.RequestHandler):
 class SponsorsFetcherHandler( webapp2.RequestHandler ):
 
     def post(self):
+        logging.info ("Starting to look for sponsors")
+
         channel = Channel.query(Channel.external_id == constants.BARBARA_CHANNEL_ID).get()
 
         if channel is None:
-            logging.info("Video Fetcher: No channel")
+            logging.info("Sponsor Fetcher: No channel")
             return
 
-        while len( Video.query( Video.is_live == True ).fetch()) != 0):
-            logging.info("Checking for new sponsors")
-            Sponsor.get_sponsors( channel.credentials, channel.external_id )
+        logging.info("Checking for new sponsors")
+        Sponsor.get_sponsors( channel.credentials, channel.external_id )
 
+        if len( Video.query( Video.is_live == True ).fetch()) != 0:
             time.sleep(5)
-
+            task = taskqueue.add( queue_name = "sponsors-queue",
+                                  url = "/sponsors/fetcher"
+                                )
         logging.info("No longer looking for new Sponsors")
 
 app = webapp2.WSGIApplication([ ('/sponsors/fetcher', SponsorsFetcherHandler),
