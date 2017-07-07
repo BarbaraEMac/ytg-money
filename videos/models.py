@@ -28,7 +28,8 @@ class Video(ndb.Model):
 
         # If we have a new LIVE video, start fetching things quickly
         if self.is_live:
-             task = taskqueue.add( queue_name = "sponsors-queue",
+            logging.info("Starting to fetch Sponsor now")
+            task = taskqueue.add( queue_name = "sponsors-queue",
                                    url = "/sponsors/fetcher"
                                  )
 
