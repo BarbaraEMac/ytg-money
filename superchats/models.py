@@ -25,11 +25,11 @@ class SuperChat(ndb.Model):
 
     viewer = ndb.StructuredProperty(Viewer)
 
-    amount = ndb.FloatProperty()
+    amountMicros = ndb.FloatProperty(default=0)
 
     currency = ndb.StringProperty()
 
-    usd_amount = ndb.FloatProperty()
+    usd_amount = ndb.FloatProperty(default=0)
 
     displayString = ndb.StringProperty() # Pretty print for orignial amount+currency
 
@@ -67,7 +67,7 @@ class SuperChat(ndb.Model):
 
                 text = superchat['commentText']
                 created_at = datetime.strptime( superchat["createdAt"], "%Y-%m-%dT%H:%M:%S.%fZ" )
-                amount = int( superchat['amountMicros'] )
+                amountMicros = int( superchat['amountMicros'] )
                 currency = superchat['currency']
                 displayString = superchat['displayString']
                 tier = superchat['messageType']
@@ -86,7 +86,8 @@ class SuperChat(ndb.Model):
                     viewer = Viewer( channel_id = channel_id,
                                      channel_url = channel_url,
                                      name = name,
-                                     image = image
+                                     image = image,
+
                                    )
                 viewer.put()
 
@@ -96,7 +97,7 @@ class SuperChat(ndb.Model):
                                 id = id,
                                 text = text,
                                 created_at = created_at,
-                                amount = amount,
+                                amountMicros = amountMicros,
                                 currency = currency,
                                 displayString = displayString,
                                 tier = tier )

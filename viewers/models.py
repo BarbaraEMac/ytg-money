@@ -25,7 +25,7 @@ class Viewer(ndb.Model):
 
     all_streams = ndb.StructuredProperty(Video, repeated=True)
 
-    super_chat_total = ndb.FloatProperty()
+    super_chat_total = ndb.FloatProperty(default=0)
 
     is_sponsor = ndb.BooleanProperty(default=False)
 
