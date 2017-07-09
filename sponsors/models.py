@@ -13,7 +13,7 @@ from google.appengine.ext import ndb
 class Sponsor(ndb.Model):
     created_date = ndb.DateTimeProperty(auto_now_add=True)
 
-    sponsored_channel_id = ndb.StringProperty()
+    owner_channel_id = ndb.StringProperty()
 
     sponsor_since = ndb.DateTimeProperty()
 
@@ -32,7 +32,7 @@ class Sponsor(ndb.Model):
                                            filter="all",
                                            maxResults=50 )
 
-        former_sponsors = Sponsor.query( Sponsor.sponsored_channel_id == requesting_channel_id ).fetch()
+        former_sponsors = Sponsor.query( Sponsor.owner_channel_id == requesting_channel_id ).fetch()
         sponsor_ids = []
 
         while request:
@@ -47,7 +47,8 @@ class Sponsor(ndb.Model):
             for sponsor_obj in sponsors:
                 sponsor = sponsor_obj["snippet"]
 
-                sponsored_channel_id = sponsor['channelId']
+                owner_channel_id = sponsor['channelId']
+
                 channel_id = sponsor['sponsorDetails']['channelId']
                 channel_url = sponsor['sponsorDetails']['channelUrl']
                 name = sponsor['sponsorDetails']['displayName']
@@ -77,7 +78,7 @@ class Sponsor(ndb.Model):
                 viewer.put()
 
                 # Now, make the new Sponsor and save it
-                spn = Sponsor( sponsored_channel_id = sponsored_channel_id,
+                spn = Sponsor( owner_channel_id = owner_channel_id,
                                sponsor_since = sponsor_since,
                                is_active = True,
                                viewer = viewer )
