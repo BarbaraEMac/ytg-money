@@ -11,6 +11,7 @@ import random
 import sys
 import webapp2
 
+from alerts.models import Alert
 from channels.models import *
 from main.models import *
 from videos.models import *

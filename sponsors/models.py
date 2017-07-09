@@ -2,6 +2,7 @@ import constants
 import helpers
 import logging
 
+from alerts.models import Alert
 from viewers.models import Viewer
 
 from datetime import datetime
@@ -81,6 +82,8 @@ class Sponsor(ndb.Model):
                                is_active = True,
                                viewer = viewer )
                 spn.put()
+
+                Alert.create_sponsor_alert( viewer )
                 # end for
 
             request = youtube.sponsors().list_next( request, response )
