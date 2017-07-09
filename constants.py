@@ -1,7 +1,5 @@
 import os
 
-from google.appengine.api import memcache
-
 # External channel IDs for my 2 channels
 BARBARA_CHANNEL_ID = "UCmydrQwDJ12_8vAwRv-aqKw"
 BARBBOT_CHANNEL_ID = "UCxhux0GVVyP1iX_nt7cU1bQ"
