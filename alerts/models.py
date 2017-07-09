@@ -22,7 +22,7 @@ class Alert(ndb.Model):
 
     @staticmethod
     def create_sponsor_alert( viewer ):
-        alert = Alert( id     = uuid.uuid1(),
+        alert = Alert( id     = str( uuid.uuid1() ),
                        viewer = viewer,
                        text   = "",
                        amount = "3.99",
@@ -31,8 +31,8 @@ class Alert(ndb.Model):
 
 
     @staticmethod
-    def create_super_chat_alert( viewer, text, amount ):
-        alert = Alert( id     = uuid.uuid1(),
+    def create_superchat_alert( viewer, text, amount ):
+        alert = Alert( id     = str( uuid.uuid1() ),
                        viewer = viewer,
                        text   = text,
                        amount = amount,
@@ -41,7 +41,7 @@ class Alert(ndb.Model):
 
     @staticmethod
     def create_sub_alert( viewer ):
-        alert = Alert( id     = uuid.uuid1(),
+        alert = Alert( id     = str( uuid.uuid1() ),
                        viewer = viewer,
                        text   = "",
                        amount = "",
