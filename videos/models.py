@@ -3,8 +3,6 @@ import helpers
 
 import logging
 
-from constants import is_barbara_live
-
 from datetime import datetime
 from google.appengine.api import taskqueue
 from google.appengine.ext import ndb
@@ -62,7 +60,7 @@ class Video(ndb.Model):
             )
 
         formerly_live = None
-        if is_barbara_live():
+        if helpers.is_barbara_live():
             formerly_live = Video.query( Video.is_live == True ).fetch()
 
         live_ids = []
