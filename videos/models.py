@@ -39,6 +39,10 @@ class Video(ndb.Model):
             task = taskqueue.add( queue_name = "superchats-queue",
                                    url = "/superchats/fetcher"
                                  )
+            logging.info("Starting to fetch Subscribers now")
+            task = taskqueue.add( queue_name = "subscribers-queue",
+                                   url = "/subscribers/fetcher"
+                                 )
 
         # Otherwise, turn everything off!
         else:
@@ -47,6 +51,8 @@ class Video(ndb.Model):
             q = taskqueue.Queue( "sponsors-queue" )
             q.purge()
             q = taskqueue.Queue( "superchats-queue" )
+            q.purge()
+            q = taskqueue.Queue( "subscribers-queue" )
             q.purge()
 
 
