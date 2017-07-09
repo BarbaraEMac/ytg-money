@@ -28,6 +28,9 @@ class Video(ndb.Model):
 
         # If we have a new LIVE video, start fetching things quickly
         if self.is_live:
+            if not memcache.replace( key="BARBARA_IS_LIVE", value=True ):
+                memcache.add( key="BARBARA_IS_LIVE", value=True)
+
             logging.info("Starting to fetch Sponsor now")
             task = taskqueue.add( queue_name = "sponsors-queue",
                                    url = "/sponsors/fetcher"
@@ -35,6 +38,8 @@ class Video(ndb.Model):
 
         # Otherwise, turn everything off!
         else:
+            memcache.replace( key="BARBARA_IS_LIVE", value=False )
+
             q = taskqueue.Queue( "sponsors-queue" )
             q.purge()
 

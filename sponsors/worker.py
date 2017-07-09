@@ -23,16 +23,16 @@ class SponsorsFetcherHandler( webapp2.RequestHandler ):
     def post(self):
         logging.info ("Starting to look for sponsors")
 
-        channel = Channel.query(Channel.external_id == constants.BARBARA_CHANNEL_ID).get()
+        channel_creds= Channel.get_barbara_creds()
 
-        if channel is None:
+        if channel_creds is None:
             logging.info("Sponsor Fetcher: No channel")
             return
 
         logging.info("Checking for new sponsors")
-        Sponsor.get_sponsors( channel.credentials, channel.external_id )
+        Sponsor.get_sponsors( channel_creds, constants.BARBARA_CHANNEL_ID )
 
-        if len( Video.query( Video.is_live == True ).fetch()) != 0:
+        if is_barbara_live():
             #time.sleep(5)
             task = taskqueue.add( queue_name = "sponsors-queue",
                                   url = "/sponsors/fetcher"

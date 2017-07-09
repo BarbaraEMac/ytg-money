@@ -1,5 +1,7 @@
 import os
 
+from google.appengine.api import memcache
+
 # External channel IDs for my 2 channels
 BARBARA_CHANNEL_ID = "UCmydrQwDJ12_8vAwRv-aqKw"
 BARBBOT_CHANNEL_ID = "UCxhux0GVVyP1iX_nt7cU1bQ"
@@ -16,3 +18,5 @@ CLIENT_SECRETS = os.path.dirname(__file__) + "/client_secrets.json"
 # missing.
 MISSING_CLIENT_SECRETS_MESSAGE = """ WARNING: Please configure OAuth 2.0"""
 
+def is_barbara_live():
+    return memcache.get( key="BARBARA_IS_LIVE" )

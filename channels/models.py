@@ -6,7 +6,7 @@ import os
 
 from apiclient.discovery import build
 from datetime import datetime
-from google.appengine.api import users
+from google.appengine.api import memcache, users
 from google.appengine.ext import ndb
 from oauth2client.contrib.appengine import CredentialsNDBProperty
 
@@ -63,3 +63,16 @@ class Channel(ndb.Model):
             channel.put()
 
         return channel
+
+    @staticmethod
+    def get_barbara_creds():
+        creds = memcache.get(key="BARBARA_CREDS")
+
+        if creds is None:
+            channel = Channel.query(Channel.external_id == constants.BARBARA_CHANNEL_ID).get()
+
+            if channel is not None:
+                creds = channel.credentials
+                memcache.add(key="BARBARA_CREDS", value=creds)
+
+        return creds

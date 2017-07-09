@@ -28,15 +28,15 @@ class LiveHandler(webapp2.RequestHandler):
             self.response.out.write("Hello and welcome to our dev server")
             return
         """
-        channel = Channel.query(Channel.external_id == constants.BARBARA_CHANNEL_ID).get()
+        channel_creds = Channel.get_barbara_creds()
 
-        if channel is None:
+        if channel_creds is None:
             logging.info("No channel found. Redirecting to channel page")
             self.redirect( "https://gaming.youtube.com/BarbaraEMac?action=subscribe")
             return
 
         logging.info("Fetching top live videos")
-        top_live_video = Video.get_top_live_video_id( channel.credentials )
+        top_live_video = Video.get_top_live_video_id( channel_creds )
 
         if top_live_video != "":
             self.redirect( "https://gaming.youtube.com/watch?v=%s" % top_live_video)
@@ -59,7 +59,7 @@ class AlertsApiHandler(webapp2.RequestHandler):
         dollarAmounts = [1, 2, 5, 10, 20, 50, 100]
         i = random.randrange(len(dollarAmounts) - 1)
         amount = random.choice(dollarAmounts)
-        
+
         alert_response.append( {
                 'id': 'uuid' + str(i),
                 'channel_id': 'channel:' + str(i),
