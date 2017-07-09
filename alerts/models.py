@@ -25,7 +25,7 @@ class Alert(ndb.Model):
         alert = Alert( id     = str( uuid.uuid1() ),
                        viewer = viewer,
                        text   = "",
-                       amount = "3.99",
+                       amount = 0,
                        type   = "SPONSOR" )
         alert.put()
 
@@ -44,7 +44,7 @@ class Alert(ndb.Model):
         alert = Alert( id     = str( uuid.uuid1() ),
                        viewer = viewer,
                        text   = "",
-                       amount = "",
+                       amount = 0,
                        type   = "SUB" )
         alert.put()
 
