@@ -35,12 +35,18 @@ class Video(ndb.Model):
             task = taskqueue.add( queue_name = "sponsors-queue",
                                    url = "/sponsors/fetcher"
                                  )
+            logging.info("Starting to fetch Super Chats now")
+            task = taskqueue.add( queue_name = "superchats-queue",
+                                   url = "/superchats/fetcher"
+                                 )
 
         # Otherwise, turn everything off!
         else:
             memcache.replace( key="BARBARA_IS_LIVE", value=False )
 
             q = taskqueue.Queue( "sponsors-queue" )
+            q.purge()
+            q = taskqueue.Queue( "superchats-queue" )
             q.purge()
 
 
