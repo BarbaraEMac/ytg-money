@@ -17,6 +17,3 @@ CLIENT_SECRETS = os.path.dirname(__file__) + "/client_secrets.json"
 # This variable defines a message to display if the CLIENT_SECRETS_FILE is
 # missing.
 MISSING_CLIENT_SECRETS_MESSAGE = """ WARNING: Please configure OAuth 2.0"""
-
-def is_barbara_live():
-    return memcache.get( key="BARBARA_IS_LIVE" )

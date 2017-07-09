@@ -13,3 +13,5 @@ def auth_http( credentials ):
 
     return authed_http
 
+def is_barbara_live():
+    return memcache.get( key="BARBARA_IS_LIVE" )

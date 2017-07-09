@@ -1,10 +1,10 @@
 import constants
+import helpers
 import logging
 import time
 import webapp2
 
 from channels.models import Channel
-from constants       import is_barbara_live, BARBARA_CHANNEL_ID
 from superchats.models import SuperChat
 from videos.models   import Video
 
@@ -31,9 +31,9 @@ class SuperChatsFetcherHandler( webapp2.RequestHandler ):
             return
 
         logging.info("Checking for new superchats")
-        SuperChat.get_superchats( channel_creds, BARBARA_CHANNEL_ID )
+        SuperChat.get_superchats( channel_creds, constants.BARBARA_CHANNEL_ID )
 
-        if is_barbara_live():
+        if helpers.is_barbara_live():
             #time.sleep(5)
             task = taskqueue.add( queue_name = "superchats-queue",
                                   url = "/superchats/fetcher"
