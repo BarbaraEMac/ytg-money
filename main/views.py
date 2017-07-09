@@ -11,6 +11,8 @@ import random
 import sys
 import webapp2
 
+import helpers
+
 from alerts.models import Alert
 from channels.models import *
 from main.models import *
@@ -23,12 +25,10 @@ from oauth2client.client import flow_from_clientsecrets
 
 class LiveHandler(webapp2.RequestHandler):
     def get(self):
-        """
         # If in the dev server, don't redirect
         if os.environ.get('SERVER_SOFTWARE','').startswith('Development'):
             self.response.out.write("Hello and welcome to our dev server")
             return
-        """
         channel_creds = Channel.get_barbara_creds()
 
         if channel_creds is None:
@@ -37,12 +37,14 @@ class LiveHandler(webapp2.RequestHandler):
             return
 
         logging.info("Fetching top live videos")
-        top_live_video = Video.get_top_live_video_id( channel_creds )
+        if helpers.is_barbara_live():
 
-        if top_live_video != "":
-            self.redirect( "https://gaming.youtube.com/watch?v=%s" % top_live_video)
-        else:
-            self.redirect( "https://gaming.youtube.com/BarbaraEMac?action=subscribe")
+            top_live_video = Video.get_top_live_video_id( channel_creds )
+
+            if top_live_video != "":
+                self.redirect( "https://gaming.youtube.com/watch?v=%s" % top_live_video)
+
+        self.redirect( "https://gaming.youtube.com/BarbaraEMac?action=subscribe")
 
 class PatchHandler(webapp2.RequestHandler):
 
