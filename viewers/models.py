@@ -1,15 +1,6 @@
-import constants
-import httplib2
-import json
-import logging
-import os
-
 from videos.models import Video
 
-from google.appengine.api import users
 from google.appengine.ext import ndb
-from oauth2client.contrib.appengine import CredentialsNDBProperty
-from apiclient.discovery import build
 
 class Viewer(ndb.Model):
     # Added this object was created
