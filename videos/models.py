@@ -3,6 +3,8 @@ import helpers
 
 import logging
 
+from constants import is_barbara_live
+
 from datetime import datetime
 from google.appengine.api import taskqueue
 from google.appengine.ext import ndb
@@ -58,7 +60,9 @@ class Video(ndb.Model):
             maxResults=50
             )
 
-        formerly_live = Video.query( Video.is_live == True ).fetch()
+        formerly_live = None
+        if is_barbara_live():
+            formerly_live = Video.query( Video.is_live == True ).fetch()
 
         live_ids = []
         while list_broadcasts_request:
@@ -95,12 +99,13 @@ class Video(ndb.Model):
 
         # Go through formerly live videos.
         # If we didn't fetch it now, it must be over.
-        for stream in formerly_live:
-            if stream.video_id not in live_ids:
-                logging.info("get_and_save_live_videos: %s is no longer live" % stream.video_id)
-                stream.is_live = False
-                stream.end_time = datetime.now()
-                stream.put()
+        if formerly_live is not None:
+            for stream in formerly_live:
+                if stream.video_id not in live_ids:
+                    logging.info("get_and_save_live_videos: %s is no longer live" % stream.video_id)
+                    stream.is_live = False
+                    stream.end_time = datetime.now()
+                    stream.put()
 
     @staticmethod
     def get_top_live_video_id( credentials ):
