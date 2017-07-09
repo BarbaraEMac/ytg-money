@@ -25,13 +25,13 @@ class SuperChat(ndb.Model):
 
     viewer = ndb.StructuredProperty(Viewer)
 
-    amountMicros = ndb.FloatProperty(default=0)
+    amount_micros = ndb.IntegerProperty(default=0)
 
     currency = ndb.StringProperty()
 
     usd_amount = ndb.FloatProperty(default=0)
 
-    displayString = ndb.StringProperty() # Pretty print for orignial amount+currency
+    display_string = ndb.StringProperty() # Pretty print for orignial amount+currency
 
     tier = ndb.IntegerProperty()
 
@@ -69,6 +69,7 @@ class SuperChat(ndb.Model):
                 created_at = datetime.strptime( superchat["createdAt"], "%Y-%m-%dT%H:%M:%S.%fZ" )
                 amountMicros = int( superchat['amountMicros'] )
                 currency = superchat['currency']
+                usd_amount = helpers.convert_to_usd( amountMicros, currency )
                 displayString = superchat['displayString']
                 tier = superchat['messageType']
 
@@ -86,9 +87,12 @@ class SuperChat(ndb.Model):
                     viewer = Viewer( channel_id = channel_id,
                                      channel_url = channel_url,
                                      name = name,
-                                     image = image,
-
+                                     image = image
                                    )
+                if viewer.super_chat_total is not None:
+                    viewer.super_chat_total = viewer.super_chat_total + usd_amount
+                else:
+                    viewer.super_chat_total = usd_amount
                 viewer.put()
 
                 # Now, make the new superchat and save it
@@ -97,13 +101,14 @@ class SuperChat(ndb.Model):
                                 id = id,
                                 text = text,
                                 created_at = created_at,
-                                amountMicros = amountMicros,
+                                amount_micros = amountMicros,
+                                usd_amount = usd_amount,
                                 currency = currency,
-                                displayString = displayString,
+                                display_string = displayString,
                                 tier = tier )
                 sc.put()
 
-                Alert.create_superchat_alert( viewer, text, amount )
+                Alert.create_superchat_alert( viewer, text, usd_amount )
                 # end for
 
             request = youtube.superChatEvents().list_next( request, response )
