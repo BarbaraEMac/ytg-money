@@ -4,6 +4,7 @@ import time
 import webapp2
 
 from channels.models import Channel
+from constants       import is_barbara_live, BARBARA_CHANNEL_ID
 from sponsors.models import Sponsor
 from videos.models   import Video
 
@@ -30,7 +31,7 @@ class SponsorsFetcherHandler( webapp2.RequestHandler ):
             return
 
         logging.info("Checking for new sponsors")
-        Sponsor.get_sponsors( channel_creds, constants.BARBARA_CHANNEL_ID )
+        Sponsor.get_sponsors( channel_creds, BARBARA_CHANNEL_ID )
 
         if is_barbara_live():
             #time.sleep(5)
