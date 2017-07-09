@@ -1,5 +1,7 @@
 import uuid
 
+from viewers.models import Viewer
+
 from datetime import datetime
 from google.appengine.ext import ndb
 
@@ -8,15 +10,15 @@ class Alert(ndb.Model):
 
     id = ndb.StringProperty(indexed=False)
 
-    has_been_run = nbd.BooleanProperty(default=False, indexed=True)
+    has_been_run = ndb.BooleanProperty(default=False, indexed=True)
 
     viewer = ndb.StructuredProperty(Viewer)
 
-    text = nbd.StringProperty(indexed=False)
+    text = ndb.StringProperty(indexed=False)
 
-    amount = nbd.FloatProperty(indexed=False)
+    amount = ndb.FloatProperty(indexed=False)
 
-    type = nbd.StringProperty(indexed=True)
+    type = ndb.StringProperty(indexed=True)
 
     @staticmethod
     def create_sponsor_alert( viewer ):
@@ -48,7 +50,7 @@ class Alert(ndb.Model):
 
     @staticmethod
     def get_alerts_to_run():
-        return Alert.query( Alert.has_been_run = False ).fetch()
+        return Alert.query( Alert.has_been_run == False ).fetch()
 
     @staticmethod
     def mark_as_run( alerts ):
