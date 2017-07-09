@@ -27,7 +27,7 @@ handlers:
   script: pumpkin_patch.pumpkin_patch.app
 - url: /sponsors/.*
   script: sponsors.worker.app
-- url: /subs/.*
+- url: /subscribers/.*
   script: subscribers.worker.app
 - url: /superchats/.*
   script: superchats.worker.app
