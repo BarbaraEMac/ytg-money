@@ -10,3 +10,8 @@ cron:
   url: /sponsors/enqueue
   schedule: every 24 hours
   timezone: America/Los_Angeles
+
+- description: "Update Subscribers"
+  url: /subscribers/enqueue
+  schedule: every 1 hours
+  timezone: America/Los_Angeles
