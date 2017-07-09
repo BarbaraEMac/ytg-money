@@ -56,6 +56,7 @@ class Video(ndb.Model):
         logging.info("get_and_save_live_videos: Fetching all live streams")
         list_broadcasts_request = youtube.liveBroadcasts().list(
             broadcastStatus = "active",
+            broadcastType="all",
             part="id,snippet",
             maxResults=50
             )
