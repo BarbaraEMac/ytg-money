@@ -5,3 +5,8 @@ cron:
   url: /videos/enqueue
   schedule: every 1 mins from 16:00 to 01:00
   timezone: America/Los_Angeles
+
+- description: "Update Sponsors"
+  url: /sponsors/enqueue
+  schedule: every 24 hours
+  timezone: America/Los_Angeles
