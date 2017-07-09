@@ -29,4 +29,6 @@ class Viewer(ndb.Model):
 
     is_sponsor = ndb.BooleanProperty(default=False)
 
+    is_sub = ndb.BooleanProperty(default=False)
+
     first_chat = ndb.TextProperty()
