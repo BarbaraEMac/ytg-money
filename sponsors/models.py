@@ -61,6 +61,10 @@ class Sponsor(ndb.Model):
 
                 # If we've already saved this one, keep going
                 if spn:
+                    # But reactivate if they came back
+                    if not spn.is_active:
+                        spn.is_active = True
+                        spn.put()
                     continue
 
                 # Otherwise, get the viewer corresponding to this user
