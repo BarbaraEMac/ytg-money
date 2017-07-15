@@ -4,7 +4,7 @@ import helpers
 import logging
 
 from datetime import datetime
-from google.appengine.api import taskqueue
+from google.appengine.api import memcache, taskqueue
 from google.appengine.ext import ndb
 
 class Video(ndb.Model):
