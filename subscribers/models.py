@@ -55,6 +55,7 @@ class Subscriber(ndb.Model):
                 # Make a vew Viewer if we don't have one
                 if viewer is None:
                     viewer = Viewer( channel_id = channel_id,
+                                     channel_url = "http://www.youtube.com/channel/" + channel_id,
                                      name = name,
                                      image = image,
                                      is_sub = True
