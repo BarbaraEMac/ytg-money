@@ -71,9 +71,7 @@ class Video(ndb.Model):
             maxResults=50
             )
 
-        formerly_live = None
-        if helpers.is_barbara_live():
-            formerly_live = Video.query( Video.is_live == True ).fetch()
+        formerly_live = Video.query( Video.is_live == True ).fetch()
 
         live_ids = []
         while list_broadcasts_request:
@@ -107,6 +105,9 @@ class Video(ndb.Model):
             list_broadcasts_request = youtube.liveBroadcasts().list_next(
                 list_broadcasts_request, list_broadcasts_response)
             # end while
+
+        if len( live_ids ) is 0:
+            logging.info("No videos are live")
 
         # Go through formerly live videos.
         # If we didn't fetch it now, it must be over.
