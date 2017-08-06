@@ -54,8 +54,8 @@ class PatchHandler(webapp2.RequestHandler):
 class AlertsApiHandler(webapp2.RequestHandler):
 
     def get(self):
-        if (datetime.now().second % 10 != 0):
-            return
+       # if (datetime.now().second % 10 != 0):
+       #     return
 
         alert_response = []
 
@@ -64,7 +64,8 @@ class AlertsApiHandler(webapp2.RequestHandler):
         amount = random.choice(dollarAmounts)
 
         alert_response.append( {
-                'id': 'uuid' + str(i),
+                'type': "SUB",
+                'id': 'uuid' + str(random.randint(0,10000000)), #str(i),
                 'channel_id': 'channel:' + str(i),
                 'name': 'Curious George' + str(amount),
                 'image' : 'https://yt3.ggpht.com/-KvBjE1iQ-Yk/AAAAAAAAAAI/AAAAAAAAAAA/8y92vRZBW2s/s88-c-k-no-mo-rj-c0xffffff/photo.jpg',
@@ -134,10 +135,22 @@ class Oauth2CallbackHandler(webapp2.RequestHandler):
             self.redirect("/login")
             return
 
+class RaidHandler (webapp2.RequestHandler):
+
+    def get(self):
+        self.response.out.write( template.render("main/templates/raid.html",{}) )
+
+class SubsHandler (webapp2.RequestHandler):
+
+    def get(self):
+        self.response.out.write( template.render("main/templates/subs.html",{}) )
+
 app = webapp2.WSGIApplication([("/", LiveHandler),
                                ("/patch", PatchHandler),
                                ("/alerts_api", AlertsApiHandler),
                                ("/login", LoginHandler),
-                               ("/oauth2callback", Oauth2CallbackHandler)
+                               ("/oauth2callback", Oauth2CallbackHandler),
+                               ("/raid", RaidHandler),
+                               ("/subs", SubsHandler)
                               ],
                               debug=True)
