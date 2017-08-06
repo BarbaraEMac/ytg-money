@@ -1,0 +1,137 @@
+
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<title>JQuery.throwable</title> 
+<style>
+body{
+}
+
+#box1{
+position: absolute;
+width: 150px;
+height: 150px;
+left: 0px;
+top: 10px;
+background-image: url("/static/BarbBot_100.png");
+background-size: 150px 150px;
+}
+#box2{
+position: absolute;
+width: 150px;
+height: 150px;
+left: 150px;
+top: 10px;
+background-image: url("/static/BarbBot_100.png");
+background-size: 150px 150px;
+}
+
+#box3{
+position: absolute;
+width: 150px;
+height: 150px;
+left: 300px;
+top: 10px;
+background-image: url("/static/BarbBot_100.png");
+background-size: 150px 150px;
+}
+
+#box4{
+position: absolute;
+width: 150px;
+height: 150px;
+left: 450px;
+top: 10px;
+background-image: url("/static/BarbBot_100.png");
+background-size: 150px 150px;
+}
+#box5{
+position: absolute;
+width: 150px;
+height: 150px;
+left: 600px;
+top: 10px;
+background-image: url("/static/BarbBot_100.png");
+background-size: 150px 150px;
+}
+
+#box6{
+position: absolute;
+width: 150px;
+height: 150px;
+left: 750px;
+top: 10px;
+background-image: url("/static/BarbBot_100.png");
+background-size: 150px 150px;
+}
+
+#box7{
+position: absolute;
+width: 150px;
+height: 150px;
+left: 900px;
+top: 10px;
+background-image: url("/static/BarbBot_100.png");
+background-size: 150px 150px;
+}
+#box8{
+position: absolute;
+width: 150px;
+height: 150px;
+left: 1050px;
+top: 10px;
+background-image: url("/static/BarbBot_100.png");
+background-size: 150px 150px;
+}
+
+#box9{
+position: absolute;
+width: 150px;
+height: 150px;
+left: 1200px;
+top: 10px;
+background-image: url("/static/BarbBot_100.png");
+background-size: 150px 150px;
+}
+.pump{
+position: absolute;
+width: 150px;
+height: 150px;
+top: 10px;
+background-image: url("/static/BarbBot_100.png");
+background-size: 150px 150px;
+}
+
+</style>
+</head>
+<body>
+    <div id="world"> </div>
+<!--
+    <div id="box1" class="th"></div>
+<div id="box2" class="th"></div>
+<div id="box3" class="th"></div>
+<div id="box4" class="th"></div>
+<div id="box5" class="th"></div>
+<div id="box6" class="th"></div>
+<div id="box7" class="th"></div>
+<div id="box8" class="th"></div>
+<div id="box9" class="th"></div>
+-->    
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://benahm.github.io/jquery.throwable/javascripts/jquery.throwable.js" type="text/javascript"></script> 
+
+<script>$(document).ready(function () { 
+$(".th").throwable({shape:"circle",autostart:true,bounce:0.1,gravity:{x:0,y:2}});
+
+
+    var foo = $('<div id="1" class="pump"> </div>');
+    foo.throwable({shape:"circle",autostart:true,bounce:0.1,gravity:{x:0,y:2}});
+    foo.appendTo("#world");
+
+});</script>
+
+</body>
+</html>
+
