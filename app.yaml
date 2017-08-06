@@ -17,7 +17,7 @@ api_version: 1
 threadsafe: no
 
 handlers:
-- url: robots\.txt
+- url: /robots\.txt
   static_dir: main/static
 - url: /static/*
   static_dir: main/static
