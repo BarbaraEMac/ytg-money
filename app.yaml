@@ -17,8 +17,10 @@ api_version: 1
 threadsafe: no
 
 handlers:
-- url: /robots.txt
-  static_dir: /static
+- url: robots\.txt
+  static_dir: main/static
+- url: /static/*
+  static_dir: main/static
 - url: /TemplateData/*
   static_dir: main/templates/webGL/TemplateData
 - url: /Build/*
