@@ -17,34 +17,12 @@ from alerts.models import Alert
 from channels.models import *
 from main.models import *
 from videos.models import *
+from viewers.models import *
 
 from apiclient.errors import HttpError
 from google.appengine.api import users
 from google.appengine.ext.webapp import template
 from oauth2client.client import flow_from_clientsecrets
-
-class LiveHandler(webapp2.RequestHandler):
-    def get(self):
-        # If in the dev server, don't redirect
-        if os.environ.get('SERVER_SOFTWARE','').startswith('Development'):
-            self.response.out.write("Hello and welcome to our dev server")
-            return
-        channel_creds = Channel.get_barbara_creds()
-
-        if channel_creds is None:
-            logging.info("No channel found. Redirecting to channel page")
-            self.redirect( "https://gaming.youtube.com/BarbaraEMac?action=subscribe")
-            return
-
-        logging.info("Fetching top live videos")
-        if helpers.is_barbara_live():
-
-            top_live_video = Video.get_top_live_video_id( channel_creds )
-
-            if top_live_video != "":
-                self.redirect( "https://gaming.youtube.com/watch?v=%s" % top_live_video)
-
-        self.redirect( "https://gaming.youtube.com/BarbaraEMac?action=subscribe")
 
 class PatchHandler(webapp2.RequestHandler):
 
@@ -76,6 +54,29 @@ class AlertsApiHandler(webapp2.RequestHandler):
 
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write( json.dumps({'alerts': alert_response}) )
+
+class LiveHandler(webapp2.RequestHandler):
+    def get(self):
+        # If in the dev server, don't redirect
+        if os.environ.get('SERVER_SOFTWARE','').startswith('Development'):
+            self.response.out.write("Hello and welcome to our dev server")
+            return
+        channel_creds = Channel.get_barbara_creds()
+
+        if channel_creds is None:
+            logging.info("No channel found. Redirecting to channel page")
+            self.redirect( "https://gaming.youtube.com/BarbaraEMac?action=subscribe")
+            return
+
+        logging.info("Fetching top live videos")
+        if helpers.is_barbara_live():
+
+            top_live_video = Video.get_top_live_video_id( channel_creds )
+
+            if top_live_video != "":
+                self.redirect( "https://gaming.youtube.com/watch?v=%s" % top_live_video)
+
+        self.redirect( "https://gaming.youtube.com/BarbaraEMac?action=subscribe")
 
 class LoginHandler(webapp2.RequestHandler):
     """We only want to use this website with 2 accounts"""
@@ -150,6 +151,27 @@ class PumpkinImageHandler (webapp2.RequestHandler):
     def get(self):
         self.response.out.write( template.render("main/templates/pumpkinImage.html",{}) )
 
+class SubsAlertsHandler(webapp2.RequestHandler):
+
+    def get(self):
+        alert_response = []
+
+        subs = Viewer.query( Viewer.is_sub == True ).order( -Viewer.created_date ).fetch( 10 )
+
+
+        for sub in subs:
+            logging.info("Getting most recent sub " + str(sub.created_date) + " " + sub.channel_id + " " + sub.name + " " + sub.image);
+            alert_response.append( {
+                    'id': sub.channel_id,
+                    'name': sub.name,
+                    'image' : sub.image
+                   })
+
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write( json.dumps({'alerts': alert_response}) )
+
+
+
 app = webapp2.WSGIApplication([("/", LiveHandler),
                                ("/patch", PatchHandler),
                                ("/alerts_api", AlertsApiHandler),
@@ -157,6 +179,7 @@ app = webapp2.WSGIApplication([("/", LiveHandler),
                                ("/oauth2callback", Oauth2CallbackHandler),
                                ("/raid", RaidHandler),
                                ("/subs", SubsHandler),
-                               ("/pumpkinImage", PumpkinImageHandler)
+                               ("/pumpkinImage", PumpkinImageHandler),
+                               ("/subsAlerts", SubsAlertsHandler)
                               ],
                               debug=True)

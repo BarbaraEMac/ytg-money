@@ -16,10 +16,11 @@ var DEFAULT_ALERT_TIME = 5000;
 var added = false;
 var count = 0;
 var divIds = [];
+var seenUser = {};
 
 function loadAlerts() {
  // $("#logs").append("Fetching Alerts: " + new Date($.now())+"</br>" );
-  $.getJSON('/alerts_api', null, handleAlerts ).fail(
+  $.getJSON('/subsAlerts', null, handleAlerts ).fail(
     function(jqxhr, textStatus, error) {
       setTimeout(loadAlerts, 1000);
     });
@@ -30,10 +31,10 @@ function handleAlerts(resp) {
   for (var i = 0; i <= alerts.length-1; i++) {
     var data = alerts[i];
 
-    //$("#logs").append("Have not seen this user: " + data['id'] + "</br>");
+    if(!seenUser[data['id']]) {
+        seenUser[data['id']] = true;
 
-    if( data['type'] == "SUB" ) {
-      makeSub( data['id'], data['image'] );
+        makeSub( data['id'], data['image']);
     }
   }
 }
@@ -61,12 +62,12 @@ function initialize() {
         var divName = "pump"+i;
         divIds.push( divName );
 
-        var foo = $('<div id="' + divName + '" class="th">1</div>');
+        var foo = $('<div id="' + divName + '" class="th"></div>');
 
         foo.css("position", "absolute");
         foo.css("height", "75px");
         foo.css("top", "0px");
-        if( i % 2 ){ foo.css("left", "1200px"); } else { foo.css("left", "11800px"); }
+        if( i % 2 ){ foo.css("left", "1115px"); } else { foo.css("left", "1180px"); }
         //foo.css("left", "1280px");// (Math.round( Math.random()*1280))+"px");
         foo.css("backgroundImage", "url('/static/BarbBot_25.png')");
         foo.css("backgroundSize", "75px 75px");
@@ -74,8 +75,15 @@ function initialize() {
         $("#container").append( foo );
     }
 
-
     $(".th").throwable({containment:[0,0,1280, 720], shape:"circle",drag:true,autostart:true,damping:100,gravity:{x:0,y:2}});
+
+    var i = divIds.length;
+
+    for( ; i >= 0; i -- ) {
+        var id = divIds.shift();
+        $("#"+id).css("display", "none");
+        divIds.push(id);
+    }
 }
 
 $(document).ready( function() {
