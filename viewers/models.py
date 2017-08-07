@@ -4,7 +4,7 @@ from google.appengine.ext import ndb
 
 class Viewer(ndb.Model):
     # Added this object was created
-    created_date = ndb.DateTimeProperty(auto_now_add=True)
+    created_date = ndb.DateTimeProperty(auto_now_add=True, indexed=True)
 
     # YouTube channel id
     channel_id = ndb.StringProperty(default="", indexed=True)
@@ -16,7 +16,7 @@ class Viewer(ndb.Model):
     name = ndb.StringProperty(default="", indexed=False)
 
     # Profile image URL
-    image = ndb.StringProperty()
+    image = ndb.StringProperty(indexed=False)
 
     num_streams = ndb.IntegerProperty()
 
@@ -29,6 +29,6 @@ class Viewer(ndb.Model):
 
     is_sponsor = ndb.BooleanProperty(default=False)
 
-    is_sub = ndb.BooleanProperty(default=False)
+    is_sub = ndb.BooleanProperty(default=False, indexed=True)
 
     first_chat = ndb.TextProperty()
