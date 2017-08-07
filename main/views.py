@@ -145,12 +145,18 @@ class SubsHandler (webapp2.RequestHandler):
     def get(self):
         self.response.out.write( template.render("main/templates/subs.html",{}) )
 
+class PumpkinImageHandler (webapp2.RequestHandler):
+
+    def get(self):
+        self.response.out.write( template.render("main/templates/pumpkinImage.html",{}) )
+
 app = webapp2.WSGIApplication([("/", LiveHandler),
                                ("/patch", PatchHandler),
                                ("/alerts_api", AlertsApiHandler),
                                ("/login", LoginHandler),
                                ("/oauth2callback", Oauth2CallbackHandler),
                                ("/raid", RaidHandler),
-                               ("/subs", SubsHandler)
+                               ("/subs", SubsHandler),
+                               ("/pumpkinImage", PumpkinImageHandler)
                               ],
                               debug=True)
