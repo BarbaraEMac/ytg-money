@@ -17,12 +17,6 @@ var added = false;
 var count = 0;
 var divIds = [];
 
-var Engine;
-var Render;
-var World;
-var Bodies;
-var engine;
-
 function loadAlerts() {
  // $("#logs").append("Fetching Alerts: " + new Date($.now())+"</br>" );
   $.getJSON('/alerts_api', null, handleAlerts ).fail(
@@ -45,42 +39,71 @@ function handleAlerts(resp) {
 }
 
 function makeSub(id, img_url) {
-    var pumpkin = Bodies.circle(200,200,24, {render: {sprite:{ texture: "/pumpkinImage?url=https://yt3.ggpht.com/-KvBjE1iQ-Yk/AAAAAAAAAAI/AAAAAAAAAAA/8y92vRZBW2s/s88-c-k-no-mo-rj-c0xffffff/photo.jpg"}}});
+  if(divIds.length == 0 ){
+      return;
+  }
 
-    World.add(engine.world,[pumpkin]);
+  var bar = $('<img src="'+ img_url + '" />');
+  bar.css("position", "absolute");
+  bar.css("height", "47px");
+  bar.css("width", "62px");
+  bar.css("top", "20px");
+  bar.css("left", "6px");
+  bar.css("border-radius", "50%");
+
+  var foo = $( "#"+divIds.pop() );
+  foo.append( bar );
+  foo.css("display", "inline");
+}
+
+function initialize() {
+    for( var i = 0; i < 120; i ++ ) {
+        var divName = "pump"+i;
+        divIds.push( divName );
+
+        var foo = $('<div id="' + divName + '" class="th">1</div>');
+
+        foo.css("position", "absolute");
+        foo.css("height", "75px");
+        foo.css("top", "0px");
+        if( i % 2 ){ foo.css("left", "1200px"); } else { foo.css("left", "11800px"); }
+        //foo.css("left", "1280px");// (Math.round( Math.random()*1280))+"px");
+        foo.css("backgroundImage", "url('/static/BarbBot_25.png')");
+        foo.css("backgroundSize", "75px 75px");
+
+        $("#container").append( foo );
+    }
 
 
+    $(".th").throwable({containment:[0,0,1280, 720], shape:"circle",drag:true,autostart:true,damping:100,gravity:{x:0,y:2}});
 }
 
 $(document).ready( function() {
 
+    initialize();
+
+    $('body').keyup(function(e){
+        if(e.keyCode == 32){
+            // user has pressed space
+            var i = divIds.length;
+
+            for( ; i >= 0; i -- ) {
+                var id = divIds.shift();
+                $("#"+id).css("display", "none");
+                divIds.push(id);
+            }
+        } else {
+            // user has pressed space
+            var i = divIds.length;
+
+            for( ; i >= 0; i -- ) {
+                var id = divIds.shift();
+                $("#"+id).css("display", "inline");
+                divIds.push(id);
+            }
+        }
+
+    });
+
     setInterval( loadAlerts, 1000 );
-
-    //module aliases
-     Engine = Matter.Engine;
-     Render = Matter.Render;
-     World = Matter.World;
-     Bodies = Matter.Bodies;
-
-     // create an engine
-     engine = Engine.create();
-
-     // create a renderer
-     var render = Render.create({ element: document.body, engine: engine, options : {width: 1280, height:720, wireframes:false} });
-
-     // create two boxes and a ground
-     var ground = Bodies.rectangle(0, 720, 12080, 5, { isStatic: true });
-     var leftWall = Bodies.rectangle(0, 0, 5, 10000, { isStatic: true });
-     var rightWall = Bodies.rectangle(1280, 0, 5, 10000, { isStatic: true });
-
-     // add all of the bodies to the world
-     World.add(engine.world, [ground, leftWall, rightWall]);
-
-     // run the engine
-     Engine.run(engine);
-
-     // run the renderer
-     Render.run(render);
-
-
 } );
