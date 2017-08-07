@@ -13,9 +13,18 @@
   limitations under the License.
 */
 var DEFAULT_ALERT_TIME = 5000;
+var added = false;
+var count = 0;
+var divIds = [];
+
+var Engine;
+var Render;
+var World;
+var Bodies;
+var engine;
 
 function loadAlerts() {
-  $("#logs").append("Fetching Alerts: " + new Date($.now())+"</br>" );
+ // $("#logs").append("Fetching Alerts: " + new Date($.now())+"</br>" );
   $.getJSON('/alerts_api', null, handleAlerts ).fail(
     function(jqxhr, textStatus, error) {
       setTimeout(loadAlerts, 1000);
@@ -24,46 +33,54 @@ function loadAlerts() {
 
 function handleAlerts(resp) {
   var alerts = resp.alerts;
-  var subs = [];
-
   for (var i = 0; i <= alerts.length-1; i++) {
-      var data = alerts[i];
+    var data = alerts[i];
 
-      $("#logs").append("Have not seen this user: " + data['id'] + "</br>");
+    //$("#logs").append("Have not seen this user: " + data['id'] + "</br>");
 
-      if( data['type'] == "SUB" ) {
-        makeSub( data['id'], data['image'] );
-      }
-
+    if( data['type'] == "SUB" ) {
+      makeSub( data['id'], data['image'] );
+    }
   }
 }
 
 function makeSub(id, img_url) {
-  var foo = $('<div id="' + id + '" class="th"> </div>');
+    var pumpkin = Bodies.circle(200,200,24, {render: {sprite:{ texture: "/pumpkinImage?url=https://yt3.ggpht.com/-KvBjE1iQ-Yk/AAAAAAAAAAI/AAAAAAAAAAA/8y92vRZBW2s/s88-c-k-no-mo-rj-c0xffffff/photo.jpg"}}});
 
-  foo.css("position", "absolute");
-  foo.css("height", "150px");
-  foo.css("top", "0px");
-  foo.css("left", (Math.round( Math.random()*1280))+"px");
-  foo.css("backgroundImage", "url('/static/BarbBot_25.png')");
-  foo.css("backgroundSize", "150px 150px");
+    World.add(engine.world,[pumpkin]);
 
-  var bar = $('<img src="'+ img_url + '" />');
-  bar.css("position", "absolute");
-  bar.css("height", "95px");
-  bar.css("width", "125px");
-  bar.css("top", "40px");
-  bar.css("left", "12px");
-  bar.css("border-radius", "50%");
-  bar.appendTo(foo);
 
-  foo.appendTo("#world");
-
-  foo.throwable({shape:"circle",autostart:true,bounce:0.1,gravity:{x:0,y:0.1}});
 }
 
 $(document).ready( function() {
-    for(var i = 0; i <= 20; i++ ) {
-    setTimeout( function() { loadAlerts(); }, 1000 );
-    }
+
+    setInterval( loadAlerts, 1000 );
+
+    //module aliases
+     Engine = Matter.Engine;
+     Render = Matter.Render;
+     World = Matter.World;
+     Bodies = Matter.Bodies;
+
+     // create an engine
+     engine = Engine.create();
+
+     // create a renderer
+     var render = Render.create({ element: document.body, engine: engine, options : {width: 1280, height:720, wireframes:false} });
+
+     // create two boxes and a ground
+     var ground = Bodies.rectangle(0, 720, 12080, 5, { isStatic: true });
+     var leftWall = Bodies.rectangle(0, 0, 5, 10000, { isStatic: true });
+     var rightWall = Bodies.rectangle(1280, 0, 5, 10000, { isStatic: true });
+
+     // add all of the bodies to the world
+     World.add(engine.world, [ground, leftWall, rightWall]);
+
+     // run the engine
+     Engine.run(engine);
+
+     // run the renderer
+     Render.run(render);
+
+
 } );

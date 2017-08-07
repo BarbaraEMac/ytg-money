@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset='utf-8' />
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <style>
+    body {
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+    }
+    #pumpkin {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        height: 75px;
+        width: 75px;
+        background-image: "/static/BarbBot_25.png";
+        background-size: 75px 75px;
+    }
+    #avatar {
+        position: absolute;
+        top: 20px;
+        left: 6px;
+        height:47px;
+        width: 62px;
+        border-radius: 50%;
+    }
+    </style>
+    <script>
+
+        // Helper Functions
+        function getQueryParams(qs) {
+        qs = qs.split('+').join(' ');
+
+        var params = {},
+            tokens,
+            re = /[?&]?([^=]+)=([^&]*)/g;
+
+        while (tokens = re.exec(qs)) {
+                params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+                    }
+
+        return params;
+        }
+        
+        $(document).ready( function() {
+            var params = getQueryParams(window.location.search);
+
+            if(params.url != undefined) {
+                $("#avatar").attr("src", params.url);
+            }
+        });
+
+    </script>
+  </head>
+  <body>
+      <img id="pumpkin" src="/static/BarbBot_25.png"> </img>
+          <img id="avatar"></img>
+  </body>
+</html>
