@@ -21,6 +21,8 @@ handlers:
   static_dir: main/static
 - url: /static/*
   static_dir: main/static
+- url: /js/*
+  static_dir: main/js
 - url: /TemplateData/*
   static_dir: main/templates/webGL/TemplateData
 - url: /Build/*
