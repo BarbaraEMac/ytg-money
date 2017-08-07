@@ -17,8 +17,12 @@ api_version: 1
 threadsafe: no
 
 handlers:
-- url: /robots\.txt
-  static_dir: main/static
+- url: /robots.txt
+  static_files: main/static/robots.txt
+  upload: main/static/robots.txt
+- url: /favicon.ico
+  static_files: main/static/favicon.ico
+  upload: main/static/favicon.ico
 - url: /static/*
   static_dir: main/static
 - url: /js/*
