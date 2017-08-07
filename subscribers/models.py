@@ -40,7 +40,7 @@ class Subscriber(ndb.Model):
 
                 channel_id = sub['channelId']
                 name = sub['title']
-                image = str( sub['thumbnails']['default'] )
+                image = str( sub['thumbnails']['default']['url'])
 
                 viewer = Viewer.query( Viewer.channel_id == channel_id ).get()
 
