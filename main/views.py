@@ -158,7 +158,6 @@ class SubsAlertsHandler(webapp2.RequestHandler):
 
         subs = Viewer.query( Viewer.is_sub == True ).order( -Viewer.created_date ).fetch( 10 )
 
-
         for sub in subs:
             logging.info("Getting most recent sub " + str(sub.created_date) + " " + sub.channel_id + " " + sub.name + " " + sub.image);
             alert_response.append( {
@@ -169,8 +168,6 @@ class SubsAlertsHandler(webapp2.RequestHandler):
 
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write( json.dumps({'alerts': alert_response}) )
-
-
 
 app = webapp2.WSGIApplication([("/", LiveHandler),
                                ("/patch", PatchHandler),

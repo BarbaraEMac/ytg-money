@@ -17,6 +17,8 @@ var added = false;
 var count = 0;
 var divIds = [];
 var seenUser = {};
+var pumpkinSize = 75;
+var worldShown = false;
 
 function loadAlerts() {
  // $("#logs").append("Fetching Alerts: " + new Date($.now())+"</br>" );
@@ -40,6 +42,8 @@ function handleAlerts(resp) {
 }
 
 function makeSub(id, img_url) {
+  showWorld();
+
   if(divIds.length == 0 ){
       return;
   }
@@ -62,27 +66,42 @@ function initialize() {
         var divName = "pump"+i;
         divIds.push( divName );
 
+        var loc = $(window).width() - pumpkinSize - (Math.round( Math.random()*pumpkinSize));
         var foo = $('<div id="' + divName + '" class="th"></div>');
 
         foo.css("position", "absolute");
-        foo.css("height", "75px");
+        foo.css("height", pumpkinSize+"px");
         foo.css("top", "0px");
-        if( i % 2 ){ foo.css("left", "1115px"); } else { foo.css("left", "1180px"); }
-        //foo.css("left", "1280px");// (Math.round( Math.random()*1280))+"px");
+        foo.css("left", loc+"px");
         foo.css("backgroundImage", "url('/static/BarbBot_25.png')");
-        foo.css("backgroundSize", "75px 75px");
+        foo.css("backgroundSize", pumpkinSize+"px "+pumpkinSize + "px");
 
         $("#container").append( foo );
     }
 
-    $(".th").throwable({containment:[0,0,1280, 720], shape:"circle",drag:true,autostart:true,damping:100,gravity:{x:0,y:2}});
+    $(".th").throwable({containment:[0,0, $(window).width(), $(window).height()], shape:"circle",drag:true,autostart:true,damping:100,gravity:{x:0,y:2}});
 
     var i = divIds.length;
 
     for( ; i >= 0; i -- ) {
         var id = divIds.shift();
         $("#"+id).css("display", "none");
+        $("#container").append( $("#"+id) );
         divIds.push(id);
+    }
+}
+
+function hideWorld() {
+    if( worldShown == true ) {
+        worldShown = false;
+        $("#container").fadeOut(2000);
+    }
+}
+function showWorld() {
+    if( worldShown == false ) {
+        worldShown = true;
+        $("#container").fadeIn(2000);
+        setTimeout( hideWorld, 10000);
     }
 }
 
@@ -100,6 +119,10 @@ $(document).ready( function() {
                 $("#"+id).css("display", "none");
                 divIds.push(id);
             }
+        } else if( e.keyCode == 65 ) {
+            makeSub(Math.random(), "/static/BarbBot_10.png");
+
+
         } else {
             // user has pressed space
             var i = divIds.length;
