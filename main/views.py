@@ -141,17 +141,40 @@ class RaidHandler (webapp2.RequestHandler):
     def get(self):
         self.response.out.write( template.render("main/templates/raid.html",{}) )
 
-class SubsHandler (webapp2.RequestHandler):
+class SubsPageHandler (webapp2.RequestHandler):
 
     def get(self):
         self.response.out.write( template.render("main/templates/subs.html",{}) )
+
+class SubsAlertsHandler(webapp2.RequestHandler):
+
+    def get(self):
+        alert_response = []
+
+        subs = Viewer.query( Viewer.is_sub == True ).order( -Viewer.created_date ).fetch( 10 )
+
+        for sub in subs:
+            logging.info("Getting most recent sub " + str(sub.created_date) + " " + sub.channel_id + " " + sub.name + " " + sub.image);
+            alert_response.append( {
+                    'id': sub.channel_id,
+                    'name': sub.name,
+                    'image' : sub.image
+                   })
+
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write( json.dumps({'alerts': alert_response}) )
 
 class PumpkinImageHandler (webapp2.RequestHandler):
 
     def get(self):
         self.response.out.write( template.render("main/templates/pumpkinImage.html",{}) )
 
-class SubsAlertsHandler(webapp2.RequestHandler):
+class MoneyPageHandler (webapp2.RequestHandler):
+
+    def get(self):
+        self.response.out.write( template.render("main/templates/money.html",{}) )
+
+class MoneyAlertsHandler(webapp2.RequestHandler):
 
     def get(self):
         alert_response = []
@@ -175,8 +198,10 @@ app = webapp2.WSGIApplication([("/", LiveHandler),
                                ("/login", LoginHandler),
                                ("/oauth2callback", Oauth2CallbackHandler),
                                ("/raid", RaidHandler),
-                               ("/subs", SubsHandler),
                                ("/pumpkinImage", PumpkinImageHandler),
-                               ("/subsAlerts", SubsAlertsHandler)
+                               ("/subs", SubsPageHandler),
+                               ("/subsAlerts", SubsAlertsHandler),
+                               ("/money", MoneyPageHandler),
+                               ("/moneyAlerts", MoneyAlertsHandler)
                               ],
                               debug=True)
