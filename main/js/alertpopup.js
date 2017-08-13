@@ -121,8 +121,6 @@ $(document).ready( function() {
             }
         } else if( e.keyCode == 65 ) {
             makeSub(Math.random(), "/static/BarbBot_10.png");
-
-
         } else {
             // user has pressed space
             var i = divIds.length;
