@@ -179,15 +179,20 @@ class MoneyAlertsHandler(webapp2.RequestHandler):
     def get(self):
         alert_response = []
 
-        subs = Viewer.query( Viewer.is_sub == True ).order( -Viewer.created_date ).fetch( 10 )
+        dollarAmounts = [1, 2, 5, 10, 20, 50, 100]
+        i = random.randrange(len(dollarAmounts) - 1)
+        amount = random.choice(dollarAmounts)
 
-        for sub in subs:
-            logging.info("Getting most recent sub " + str(sub.created_date) + " " + sub.channel_id + " " + sub.name + " " + sub.image);
-            alert_response.append( {
-                    'id': sub.channel_id,
-                    'name': sub.name,
-                    'image' : sub.image
-                   })
+        alert_response.append( {
+                'type': "SUPER",
+                'id': 'uuid' + str(random.randint(0,10000000)), #str(i),
+                'channel_id': 'channel:' + str(i),
+                'name': 'Curious George' + str(amount),
+                'image' : 'https://yt3.ggpht.com/-KvBjE1iQ-Yk/AAAAAAAAAAI/AAAAAAAAAAA/8y92vRZBW2s/s88-c-k-no-mo-rj-c0xffffff/photo.jpg',
+                'text': 'msg' + str (amount),
+                'amount' : amount,
+                'sponsor' : i % 2
+                })
 
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write( json.dumps({'alerts': alert_response}) )

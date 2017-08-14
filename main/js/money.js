@@ -1,28 +1,17 @@
-/*
-  Copyright 2016 Google Inc. All Rights Reserved.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-      http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-*/
 var DEFAULT_ALERT_TIME = 5000;
-var added = false;
-var count = 0;
-var divIds = [];
-var seenUser = {};
-var pumpkinSize = 75;
-var worldShown = false;
+var seenAlert = {};
+var sponsorSize = 150;
+var users = [];
+var theGrid = [];
+var sponsors = [];
+var maxHeight = 720;
+var maxWidth = 1280;
+var currX = 0;
+var currY = 0;
 
 function loadAlerts() {
  // $("#logs").append("Fetching Alerts: " + new Date($.now())+"</br>" );
-  $.getJSON('/subsAlerts', null, handleAlerts ).fail(
+  $.getJSON('/moneyAlerts', null, handleAlerts ).fail(
     function(jqxhr, textStatus, error) {
       setTimeout(loadAlerts, 1000);
     });
@@ -33,76 +22,189 @@ function handleAlerts(resp) {
   for (var i = 0; i <= alerts.length-1; i++) {
     var data = alerts[i];
 
-    if(!seenUser[data['id']]) {
-        seenUser[data['id']] = true;
+    if(!seenAlert[data['id']]) {
+        seenAlert[data['id']] = true;
 
-        makeSub( data['id'], data['image']);
+        if( data['type'] == "SUPER" ){
+
+            makeSuper( data['channel_id'], data['image'], data['name'], data['amount'] );
+
+        } else if( data['type'] == "SPONSOR" ) {
+
+            makeSponsor( data['channel_id'], data['image'], data['name'] );
+        }
     }
   }
 }
 
-function makeSub(id, img_url) {
-  showWorld();
+function makeSuper( channel_id, img_url, name, amount ) {
+    // Find a battleship spot for it
+    var size = priceToSize( amount );
+    var loc = findXY_opt( size );
+    markTaken(loc['x'], loc['y'], size);
 
-  if(divIds.length == 0 ){
-      return;
-  }
 
-  var bar = $('<img src="'+ img_url + '" />');
-  bar.css("position", "absolute");
-  bar.css("height", "47px");
-  bar.css("width", "62px");
-  bar.css("top", "20px");
-  bar.css("left", "6px");
-  bar.css("border-radius", "50%");
+    // Make the div and image
+    var foo = $('<div id="' + channel_id + '" class="th"></div>');
+    var bar = $('<img src="'+ img_url + '" />');
 
-  var foo = $( "#"+divIds.pop() );
-  foo.append( bar );
-  foo.css("display", "inline");
+    var avatarSize = Math.round( size * 0.4 );
+    var avatarLoc = Math.round( (size-avatarSize-8) / 2 );
+
+    // Style them up
+    foo.css("position", "absolute");
+    foo.css("height", size+"px");
+    foo.css("width", size+"px");
+    foo.css("left", loc['x']+"px");
+    foo.css("top", loc['y']+"px");
+    foo.css("backgroundImage", "url('/static/heart.png')");
+    foo.css("backgroundSize", size+"px "+size + "px");
+
+    bar.css("position", "absolute");
+    bar.css("height", avatarSize+"px");
+    bar.css("width", avatarSize+"px");
+    bar.css("top", avatarLoc+"px");
+    bar.css("left", avatarLoc+"px");
+    bar.css("border-radius", "50%");
+    bar.css("border-style", "solid");
+    bar.css("border-color", "#00ff00");
+    bar.css("border-width", "5px");
+
+    // Put them in the page
+    foo.append ( bar );
+    $("#container").append( foo );
+}
+
+function makeSponsor( channel_id, img_url, name ) {
+    if( sponsors[channel_id] == true ) {
+        return;
+    }
+    sponsors[channel_id] = true;
+
+    // Find a battleship spot for it
+    var loc = findXY_opt( sponsorSize );
+    markTaken(loc['x'], loc['y'], sponsorSize);
+
+    // Make the div and image
+    var foo = $('<div id="' + channel_id + '" class="th"></div>');
+    var bar = $('<img src="'+ img_url + '" />');
+
+    var avatarSize = Math.round( sponsorSize * 0.4 );
+    var avatarLoc = Math.round( (sponsorSize-avatarSize-8) / 2 );
+
+    // Style them up
+    foo.css("position", "absolute");
+    foo.css("height", sponsorSize+"px");
+    foo.css("width", sponsorSize+"px");
+    foo.css("left", loc['x']+"px");
+    foo.css("top", loc['y']+"px");
+    foo.css("backgroundImage", "url('/static/heart_vines.png')");
+    foo.css("backgroundSize", sponsorSize+"px "+sponsorSize + "px");
+
+    bar.css("position", "absolute");
+    bar.css("height", avatarSize+"px");
+    bar.css("width", avatarSize+"px");
+    bar.css("top", avatarLoc+"px");
+    bar.css("left", avatarLoc+"px");
+    bar.css("border-radius", "50%");
+    bar.css("border-style", "solid");
+    bar.css("border-color", "#00ff00");
+    bar.css("border-width", "5px");
+
+    // Put them in the page
+    foo.append ( bar );
+    $("#container").append( foo );
+}
+
+function markTaken(x, y, size) {
+
+    for( var i = x; i < x+size; i++ ){
+        for( var j = y; j < y+size; j ++ ){
+            theGrid[i][j] = true;
+        }
+    }
 }
 
 function initialize() {
-    for( var i = 0; i < 120; i ++ ) {
-        var divName = "pump"+i;
-        divIds.push( divName );
 
-        var loc = $(window).width() - pumpkinSize - (Math.round( Math.random()*pumpkinSize));
-        var foo = $('<div id="' + divName + '" class="th"></div>');
+    for(var i = 0; i < maxWidth; i++) {
+        theGrid[i] = [];
 
-        foo.css("position", "absolute");
-        foo.css("height", pumpkinSize+"px");
-        foo.css("top", "0px");
-        foo.css("left", loc+"px");
-        foo.css("backgroundImage", "url('/static/BarbBot_25.png')");
-        foo.css("backgroundSize", pumpkinSize+"px "+pumpkinSize + "px");
-
-        $("#container").append( foo );
-    }
-
-    $(".th").throwable({containment:[0,0, $(window).width(), $(window).height()], shape:"circle",drag:true,autostart:true,damping:100,gravity:{x:0,y:2}});
-
-    var i = divIds.length;
-
-    for( ; i >= 0; i -- ) {
-        var id = divIds.shift();
-        $("#"+id).css("display", "none");
-        $("#container").append( $("#"+id) );
-        divIds.push(id);
+        for(var j = 0; j < maxHeight; j++) {
+            theGrid[i][j] = false;
+        }
     }
 }
 
-function hideWorld() {
-    if( worldShown == true ) {
-        worldShown = false;
-        $("#container").fadeOut(2000);
+function priceToSize( amount ) {
+    var size = 0;
+
+    if( amount < 2 ) {
+        size = 75;
+    } else if ( amount < 5 ) {
+        size = 110;
+    } else if ( amount < 10 ) {
+        size = 150;
+    } else if ( amount < 25 ) {
+        size = 175;
+    } else if ( amount < 50 ) {
+        size = 250;
+    } else if ( amount < 100 ) {
+        size = 300;
+    } else {
+        size = 350;
     }
+
+    return size;
 }
-function showWorld() {
-    if( worldShown == false ) {
-        worldShown = true;
-        $("#container").fadeIn(2000);
-        setTimeout( hideWorld, 10000);
+
+function findXY_opt( size ){
+    $("#logs").html("Opt");
+    for( var i = 0; i < maxWidth; i ++) {
+
+        for( var j = 0; j < maxHeight; j++ ){
+
+            if( tryXY(i, j, size) ) {
+                return {x: i, y: j};
+            }
+        }
     }
+
+    return findXY(size);
+}
+
+function findXY( size ) {
+    $("#logs").html("Random");
+    var locX = Math.round( Math.random()*(maxWidth-size) );
+    var locY = Math.round( Math.random()*(maxHeight-size) );
+    var overlap = Math.round( size*0.15 );
+    var count = 1000;
+    if( size < 120 ) count *= 100;
+
+    while( !tryXY(locX, locY, size) ) {
+        locX = Math.round( Math.random()*(maxWidth-size) );
+        locY = Math.round( Math.random()*(maxHeight-size) );
+
+        count -= 1;
+        if( count == 0 ){
+            return {x:locX, y:locY};
+        }
+    }
+    return {x:locX, y:locY};
+}
+
+function tryXY(x, y, size){
+    $("#logs").html("Trying " + x + " " + y + " " + size );
+
+    for( var i = x; i <= x+size; i++ ){
+
+        for( var j = y; j <= y+size; j ++ ){
+            if( theGrid[i][j] == true ) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 $(document).ready( function() {
@@ -111,27 +213,13 @@ $(document).ready( function() {
 
     $('body').keyup(function(e){
         if(e.keyCode == 32){
-            // user has pressed space
-            var i = divIds.length;
-
-            for( ; i >= 0; i -- ) {
-                var id = divIds.shift();
-                $("#"+id).css("display", "none");
-                divIds.push(id);
-            }
+            makeSponsor(Math.random(), "https://yt3.ggpht.com/-KvBjE1iQ-Yk/AAAAAAAAAAI/AAAAAAAAAAA/8y92vRZBW2s/s88-c-k-no-mo-rj-c0xffffff/photo.jpg", "name");
         } else if( e.keyCode == 65 ) {
-            makeSub(Math.random(), "/static/BarbBot_10.png");
+            var a = Math.random()*500;
+            makeSponsor(Math.random(), "https://yt3.ggpht.com/-KvBjE1iQ-Yk/AAAAAAAAAAI/AAAAAAAAAAA/8y92vRZBW2s/s88-c-k-no-mo-rj-c0xffffff/photo.jpg", "name", a);
         } else {
-            // user has pressed space
-            var i = divIds.length;
-
-            for( ; i >= 0; i -- ) {
-                var id = divIds.shift();
-                $("#"+id).css("display", "inline");
-                divIds.push(id);
-            }
+            var a = 0;
         }
-
     });
 
     setInterval( loadAlerts, 1000 );
