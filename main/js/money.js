@@ -1,6 +1,6 @@
 var DEFAULT_ALERT_TIME = 5000;
 var seenAlert = {};
-var sponsorSize = 150;
+var sponsorSize = 90;
 var users = [];
 var theGrid = [];
 var sponsors = [];
@@ -10,7 +10,7 @@ var currX = 0;
 var currY = 0;
 
 function loadAlerts() {
- // $("#logs").append("Fetching Alerts: " + new Date($.now())+"</br>" );
+ // $("#logs").html("Fetching Alerts: " + new Date($.now())+"</br>" );
   $.getJSON('/moneyAlerts', null, handleAlerts ).fail(
     function(jqxhr, textStatus, error) {
       setTimeout(loadAlerts, 1000);
@@ -38,40 +38,71 @@ function handleAlerts(resp) {
 }
 
 function makeSuper( channel_id, img_url, name, amount ) {
+    $("#logs").html("Makign a new Super");
     // Find a battleship spot for it
     var size = priceToSize( amount );
-    var loc = findXY_opt( size );
-    markTaken(loc['x'], loc['y'], size);
+    var img  = priceToImage( amount );
+    var loc  = findXY_opt( size );
 
+    var x = loc['x'];
+    var y = loc['y'];
+    var flip = Math.round( Math.random() * 30 );
+
+    if( !(flip % 2) ){
+        x += flip;
+    }
+    if( !(flip % 3) ){
+        y += flip;
+    }
+    if( !(flip % 5) ){
+        x -= flip;
+    }
+    if( !(flip % 7) ){
+        y -= flip;
+    }
+
+    markTaken(x, y, size);
 
     // Make the div and image
     var foo = $('<div id="' + channel_id + '" class="th"></div>');
     var bar = $('<img src="'+ img_url + '" />');
 
-    var avatarSize = Math.round( size * 0.4 );
-    var avatarLoc = Math.round( (size-avatarSize-8) / 2 );
+    var avatarSize = Math.round( size * 0.657142);
+    var avatarTop  = Math.round( size * 0.30 );
+    var avatarLeft = Math.round( size * 0.1714286 );
 
     // Style them up
     foo.css("position", "absolute");
     foo.css("height", size+"px");
     foo.css("width", size+"px");
-    foo.css("left", loc['x']+"px");
-    foo.css("top", loc['y']+"px");
-    foo.css("backgroundImage", "url('/static/heart.png')");
+    foo.css("left", x+"px");
+    foo.css("top", y+"px");
+    foo.css("backgroundImage", "url('"+img+"')");
     foo.css("backgroundSize", size+"px "+size + "px");
 
     bar.css("position", "absolute");
     bar.css("height", avatarSize+"px");
     bar.css("width", avatarSize+"px");
-    bar.css("top", avatarLoc+"px");
-    bar.css("left", avatarLoc+"px");
+    bar.css("top", avatarTop+"px");
+    bar.css("left", avatarLeft+"px");
     bar.css("border-radius", "50%");
-    bar.css("border-style", "solid");
-    bar.css("border-color", "#00ff00");
-    bar.css("border-width", "5px");
+
+    foo.append( bar );
+
+    if( amount >= 5 ) {
+        var qwe = $("<div class='name'>"+name+"</div>");
+        if( amount >= 50 ) {
+            qwe.css("font-size", 40);
+        } else {
+            qwe.css("font-size", 18);
+        }
+        qwe.css("position", "absolute");
+        qwe.css("top", avatarTop+"px")
+        qwe.css("padding", "10 px")
+        foo.append( qwe );
+    }
 
     // Put them in the page
-    foo.append ( bar );
     $("#container").append( foo );
 }
 
@@ -136,23 +167,45 @@ function initialize() {
     }
 }
 
+function priceToImage( amount ) {
+    var img = "";
+
+    if( amount < 2 ) {
+        img = "/static/pumpkin_darkblue.png";
+    } else if ( amount < 5 ) {
+        img = "/static/pumpkin_lightblue.png";
+    } else if ( amount < 10 ) {
+        img = "/static/pumpkin_teal.png";
+    } else if ( amount < 20 ) {
+        img = "/static/pumpkin_orange.png";
+    } else if ( amount < 50 ) {
+        img = "/static/pumpkin_yellow.png";
+    } else if ( amount < 100 ) {
+        img = "/static/pumpkin_pink.png";
+    } else {
+        img = "/static/pumpkin_red.png";
+    }
+
+    return img;
+}
+
 function priceToSize( amount ) {
     var size = 0;
 
     if( amount < 2 ) {
-        size = 75;
+        size = 40;
     } else if ( amount < 5 ) {
-        size = 110;
+        size = 50;
     } else if ( amount < 10 ) {
-        size = 150;
-    } else if ( amount < 25 ) {
-        size = 175;
+        size = 75;
+    } else if ( amount < 20 ) {
+        size = 100;
     } else if ( amount < 50 ) {
-        size = 250;
+        size = 120;
     } else if ( amount < 100 ) {
-        size = 300;
+        size = 150;
     } else {
-        size = 350;
+        size = 175;
     }
 
     return size;
@@ -160,11 +213,13 @@ function priceToSize( amount ) {
 
 function findXY_opt( size ){
     $("#logs").html("Opt");
-    for( var i = 0; i < maxWidth; i ++) {
+    var overlap = Math.round( size*0.25 );
 
-        for( var j = 0; j < maxHeight; j++ ){
+    for( var j = 0; j < (maxHeight-size); j++ ){
 
-            if( tryXY(i, j, size) ) {
+        for( var i = 0; i < (maxWidth-size); i ++) {
+
+            if( tryXY(i+overlap, j+overlap, size-overlap) ) {
                 return {x: i, y: j};
             }
         }
