@@ -76,7 +76,7 @@ class LiveHandler(webapp2.RequestHandler):
             if top_live_video != "":
                 self.redirect( "https://www.youtube.com/watch?v=%s" % top_live_video)
 
-        self.redirect( "https://www.youtube.com/channel/UCmydrQwDJ12_8vAwRv-aqKw?sub_confirmation=1e")
+        self.redirect( "https://www.youtube.com/channel/UCmydrQwDJ12_8vAwRv-aqKw?sub_confirmation=1")
 
 class LoginHandler(webapp2.RequestHandler):
     """We only want to use this website with 2 accounts"""
