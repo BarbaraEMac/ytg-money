@@ -28,7 +28,7 @@ class Sponsor(ndb.Model):
 
         youtube = helpers.auth_http( credentials )
 
-        request = youtube.sponsors().list( part="id,snippet",
+        request = youtube.sponsors().list( part="snippet",
                                            filter="all",
                                            maxResults=50 )
 
