@@ -197,6 +197,57 @@ class MoneyAlertsHandler(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write( json.dumps({'alerts': alert_response}) )
 
+class TipHandler(webapp2.RequestHandler):
+
+    def get(self):
+        self.redirect("https://streamlabs.com/BarbaraEMac")
+
+class SubHandler(webapp2.RequestHandler):
+
+    def get(self):
+        self.redirect( "https://www.youtube.com/channel/UCmydrQwDJ12_8vAwRv-aqKw?sub_confirmation=1")
+
+class SponsorHandler(webapp2.RequestHandler):
+
+    def get(self):
+        self.redirect( "https://www.youtube.com/user/BarbaraEMac/sponsor")
+
+class MerchHandler(webapp2.RequestHandler):
+
+    def get(self):
+        self.redirect( "https://www.teespring.com/BarbaraEMac")
+
+class TwitterHandler(webapp2.RequestHandler):
+
+    def get(self):
+        self.redirect( "https://www.twitter.com/BarbaraEMac")
+
+class InstaHandler(webapp2.RequestHandler):
+
+    def get(self):
+        self.redirect( "https://www.instagram.com/BarbaraEMac")
+
+class DiscordHandler(webapp2.RequestHandler):
+
+    def get(self):
+        self.redirect( "https://discord.gg/3XyNWRc")
+
+
+class TwitchHandler(webapp2.RequestHandler):
+
+    def get(self):
+        self.redirect( "https://www.twitch.tv/BarbaraEMac")
+
+class MixerHandler(webapp2.RequestHandler):
+
+    def get(self):
+        self.redirect( "https://www.mixer.com/BarbaraEMac")
+
+class FBHandler(webapp2.RequestHandler):
+
+    def get(self):
+        self.redirect( "https://www.facebook.com/gaming/BarbaraEMac")
+
 app = webapp2.WSGIApplication([("/", LiveHandler),
                                ("/patch", PatchHandler),
                                ("/alerts_api", AlertsApiHandler),
@@ -207,6 +258,17 @@ app = webapp2.WSGIApplication([("/", LiveHandler),
                                ("/subs", SubsPageHandler),
                                ("/subsAlerts", SubsAlertsHandler),
                                ("/money", MoneyPageHandler),
-                               ("/moneyAlerts", MoneyAlertsHandler)
+                               ("/moneyAlerts", MoneyAlertsHandler),
+                               ("/tip", TipHandler),
+                               ("/sub", SubHandler),
+                               ("/subscribe", SubHandler),
+                               ("/sponsor", SponsorHandler),
+                               ("/merch", MerchHandler),
+                               ("/twitter", TwitterHandler),
+                               ("/insta", InstaHandler),
+                               ("/discord", DiscordHandler),
+                               ("/twitch", TwitchHandler),
+                               ("/mixer", MixerHandler),
+                               ("/fb", FBHandler)
                               ],
                               debug=True)
