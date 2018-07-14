@@ -215,7 +215,7 @@ class SponsorHandler(webapp2.RequestHandler):
 class MerchHandler(webapp2.RequestHandler):
 
     def get(self):
-        self.redirect( "https://www.teespring.com/BarbaraEMac")
+        self.redirect( "https://www.teespring.com/stores/BarbaraEMac")
 
 class TwitterHandler(webapp2.RequestHandler):
 
@@ -259,16 +259,16 @@ app = webapp2.WSGIApplication([("/", LiveHandler),
                                ("/subsAlerts", SubsAlertsHandler),
                                ("/money", MoneyPageHandler),
                                ("/moneyAlerts", MoneyAlertsHandler),
-                               ("/tip", TipHandler),
-                               ("/sub", SubHandler),
-                               ("/subscribe", SubHandler),
-                               ("/sponsor", SponsorHandler),
-                               ("/merch", MerchHandler),
-                               ("/twitter", TwitterHandler),
-                               ("/insta", InstaHandler),
-                               ("/discord", DiscordHandler),
-                               ("/twitch", TwitchHandler),
-                               ("/mixer", MixerHandler),
-                               ("/fb", FBHandler)
+                               (r'/(?i)tip.*', TipHandler),
+                               (r'/(?i)sub.*', SubHandler),
+                               (r'/(?i)subscribe.*', SubHandler),
+                               (r'/(?i)sponsor.*', SponsorHandler),
+                               (r'/(?i)merch.*', MerchHandler),
+                               (r'/(?i)twitter.*', TwitterHandler),
+                               (r'/(?i)insta.*', InstaHandler),
+                               (r'/(?i)discord.*', DiscordHandler),
+                               (r'/(?i)twitch.*', TwitchHandler),
+                               (r'/(?i)mixer.*', MixerHandler),
+                               (r'/(?i)fb.*', FBHandler)
                               ],
                               debug=True)
