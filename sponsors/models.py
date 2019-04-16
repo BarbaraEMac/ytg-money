@@ -64,6 +64,7 @@ class Sponsor(ndb.Model):
                     # But reactivate if they came back
                     if not spn.is_active:
                         spn.is_active = True
+                        spn.cancelled_date = None
                         spn.put()
                     continue
 
