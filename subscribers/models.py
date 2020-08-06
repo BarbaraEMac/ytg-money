@@ -19,6 +19,7 @@ class Subscriber(ndb.Model):
 
     @staticmethod
     def get_subs( credentials, requesting_channel_id ):
+        return
 
         youtube = helpers.auth_http( credentials )
 

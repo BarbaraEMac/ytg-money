@@ -25,6 +25,7 @@ class Sponsor(ndb.Model):
 
     @staticmethod
     def get_sponsors( credentials, requesting_channel_id ):
+        return
 
         youtube = helpers.auth_http( credentials )
 

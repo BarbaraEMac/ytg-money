@@ -13,6 +13,7 @@ from google.appengine.api import taskqueue
 class EnqueueSponsorsFetchTaskHandler (webapp2.RequestHandler):
 
     def get(self):
+        return
 
         task = taskqueue.add( queue_name = "sponsors-queue",
                               url = "/sponsors/fetcher"

@@ -39,6 +39,7 @@ class SuperChat(ndb.Model):
 
     @staticmethod
     def get_superchats( credentials, requesting_channel_id ):
+        return 
 
         youtube = helpers.auth_http( credentials )
 

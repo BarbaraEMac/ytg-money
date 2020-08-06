@@ -13,6 +13,7 @@ from google.appengine.api import taskqueue
 class EnqueueSubsFetchTaskHandler (webapp2.RequestHandler):
 
     def get(self):
+        return
 
         task = taskqueue.add( queue_name = "subscribers-queue",
                               url = "/subscribers/fetcher"

@@ -26,6 +26,8 @@ class Video(ndb.Model):
     def _post_put_hook(self, future):
         logging.info("VIDEO WAS JUST SAVED: %s %s" %(self.video_id, self.is_live))
 
+        return
+
         # If we have a new LIVE video, start fetching things quickly
         if self.is_live:
             if not memcache.replace( key="BARBARA_IS_LIVE", value=True ):
